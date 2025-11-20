@@ -1,808 +1,880 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>rollylindenshnizzer's site</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --bg: #050816;
-      --bg-alt: #0b1020;
-      --accent: #7dd3fc;
-      --accent-soft: rgba(125, 211, 252, 0.12);
-      --text-main: #e5e7eb;
-      --text-muted: #9ca3af;
-      --border-subtle: rgba(148, 163, 184, 0.4);
-      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
-      --radius-lg: 18px;
-      --radius-xl: 24px;
-      --transition-fast: 180ms ease-out;
-      --transition-med: 220ms ease-out;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      background: radial-gradient(circle at top, #111827, #020617 46%, #000 100%);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .shell {
-      width: 100%;
-      max-width: 900px;
-      background: linear-gradient(145deg, #020617dd, #020617f7);
-      border-radius: 28px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      box-shadow: var(--shadow-soft);
-      padding: 26px 26px 22px;
-      backdrop-filter: blur(18px);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* subtle glow blobs */
-    .glow {
-      position: absolute;
-      filter: blur(40px);
-      opacity: 0.6;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .glow.glow-1 {
-      width: 260px;
-      height: 260px;
-      top: -60px;
-      right: -40px;
-      background: radial-gradient(circle, #38bdf8, transparent 60%);
-    }
-    .glow.glow-2 {
-      width: 220px;
-      height: 220px;
-      bottom: -40px;
-      left: -30px;
-      background: radial-gradient(circle, #f97316, transparent 60%);
-      opacity: 0.35;
-    }
-
-    .shell-inner {
-      position: relative;
-      z-index: 1;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      margin-bottom: 24px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.35);
-    }
-
-    .title-block h1 {
-      font-size: clamp(1.6rem, 2vw + 1rem, 2rem);
-      letter-spacing: 0.03em;
-    }
-
-    .title-block p {
-      margin-top: 4px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .pill {
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      padding: 6px 12px;
-      font-size: 0.78rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: radial-gradient(circle at top left, #111827, #020617);
-    }
-
-    .pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.24);
-    }
-
-    .content {
-      display: grid;
-      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.4fr);
-      gap: 20px;
-    }
-
-    @media (max-width: 720px) {
-      .shell {
-        padding: 20px 18px 18px;
-      }
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .content {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .tools-section h2 {
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .tools-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .tool-card {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 14px 14px 12px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-subtle);
-      background: radial-gradient(circle at top left, #020617, #020617f2);
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.55);
-      position: relative;
-      overflow: hidden;
-      transition: transform var(--transition-med), box-shadow var(--transition-med),
-        border-color var(--transition-med), background var(--transition-med);
-    }
-
-    .tool-card::before {
-      content: "";
-      position: absolute;
-      inset: -1px;
-      background: radial-gradient(
-        circle at top left,
-        rgba(125, 211, 252, 0.16),
-        transparent 55%
-      );
-      opacity: 0;
-      transition: opacity var(--transition-med);
-      pointer-events: none;
-    }
-
-    .tool-card:hover {
-      transform: translateY(-2px) translateZ(0);
-      border-color: rgba(125, 211, 252, 0.8);
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
-    }
-
-    .tool-card:hover::before {
-      opacity: 1;
-    }
-
-    .tool-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .tool-name {
-      font-weight: 600;
-      font-size: 0.98rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .tool-tag {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.88);
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      color: var(--accent);
-      white-space: nowrap;
-    }
-
-    .tool-desc {
-      font-size: 0.86rem;
-      color: var(--text-muted);
-      line-height: 1.45;
-    }
-
-    .tool-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 6px;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .tool-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      font-size: 0.78rem;
-      background: var(--accent-soft);
-      color: var(--accent);
-    }
-
-    .tool-pill-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 8px rgba(125, 211, 252, 0.7);
-    }
-
-    .tool-link {
-      margin-left: auto;
-      font-size: 0.8rem;
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: radial-gradient(circle at top, #020617, #020617f7);
-      color: var(--text-main);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background var(--transition-fast), transform var(--transition-fast),
-        border-color var(--transition-fast);
-    }
-
-    .tool-link span.chevron {
-      display: inline-block;
-      transform: translateX(0);
-      transition: transform var(--transition-fast);
-    }
-
-    .tool-card:hover .tool-link {
-      border-color: var(--accent);
-      background: radial-gradient(circle at top, #020617, #020617);
-      transform: translateY(-0.5px);
-    }
-
-    .tool-card:hover .tool-link span.chevron {
-      transform: translateX(2px);
-    }
-
-    .sidebar {
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: radial-gradient(circle at top left, #020617f5, #020617);
-      padding: 14px 14px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.8);
-    }
-
-    .sidebar h3 {
-      font-size: 0.92rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-muted);
-    }
-
-    .sidebar p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    .sidebar-list {
-      font-size: 0.8rem;
-      list-style: none;
-      display: grid;
-      gap: 4px;
-      padding-top: 4px;
-    }
-
-    .sidebar-list li {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .sidebar-bullet {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: radial-gradient(circle, rgba(148, 163, 184, 0.3), transparent);
-      flex-shrink: 0;
-    }
-
-    footer {
-      margin-top: 18px;
-      padding-top: 12px;
-      border-top: 1px dashed rgba(148, 163, 184, 0.5);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      flex-wrap: wrap;
-    }
-
-    .footer-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 8px rgba(125, 211, 252, 0.7);
-    }
-
-    /* === Beat Saber maps section === */
-
-    .maps-header {
-      margin-top: 10px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .maps-header-title {
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-muted);
-    }
-
-    .maps-header-pill {
-      font-size: 0.75rem;
-      padding: 4px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      color: var(--accent);
-      background: rgba(15, 23, 42, 0.9);
-      white-space: nowrap;
-    }
-
-    .maps-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .map-card {
-      /* reuse tool-card base, tweak slightly */
-      padding-top: 13px;
-      padding-bottom: 11px;
-    }
-
-    .map-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .map-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    .map-badge {
-      font-size: 0.7rem;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--accent);
-      white-space: nowrap;
-    }
-
-    .map-desc {
-      font-size: 0.83rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-      margin-top: 2px;
-    }
-
-    .map-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 6px;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .map-meta-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      background: rgba(15, 23, 42, 0.9);
-      font-size: 0.74rem;
-    }
-
-    .map-meta-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 6px rgba(125, 211, 252, 0.8);
-    }
-
-    .map-link {
-      font-size: 0.8rem;
-      text-decoration: none;
-      padding: 5px 11px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: radial-gradient(circle at top, #020617, #020617f7);
-      color: var(--text-main);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background var(--transition-fast), transform var(--transition-fast),
-        border-color var(--transition-fast);
-      margin-left: auto;
-    }
-
-    .map-link span.chevron {
-      display: inline-block;
-      transform: translateX(0);
-      transition: transform var(--transition-fast);
-    }
-
-    .map-card:hover .map-link {
-      border-color: var(--accent);
-      background: radial-gradient(circle at top, #020617, #020617);
-      transform: translateY(-0.5px);
-    }
-
-    .map-card:hover .map-link span.chevron {
-      transform: translateX(2px);
-    }
-
-    .maps-loading,
-    .maps-empty,
-    .maps-error {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      padding: 10px 0 4px;
-    }
-
-    .maps-error {
-      color: #fecaca;
-    }
-  </style>
-</head>
-<body>
-  <main class="shell">
-    <div class="glow glow-1"></div>
-    <div class="glow glow-2"></div>
-
-    <div class="shell-inner">
-      <header>
-        <div class="title-block">
-          <h1>rollylindenshnizzer's site</h1>
-          <p>A tiny hub for my tools & experiments.</p>
-        </div>
-        <div class="pill">
-          <span class="pill-dot"></span>
-          <span>Tool index · live</span>
-        </div>
-      </header>
-
-      <section class="content">
-        <!-- Left column: tools + Beat Saber maps -->
-        <section class="tools-section">
-          <h2>Tools</h2>
-          <div class="tools-grid">
-            <!-- Minecraft JSON Generator Card -->
-            <article class="tool-card">
-              <div class="tool-meta">
-                <div class="tool-name">
-                  🪓 Minecraft JSON Generator
-                </div>
-                <span class="tool-tag">Minecraft utility</span>
-              </div>
-              <p class="tool-desc">
-                Generate Minecraft-ready JSON snippets without hand-writing every brace.
-                Perfect for quick loot tables, advancements, blockstates, and more.
-              </p>
-              <div class="tool-footer">
-                <div class="tool-pill">
-                  <span class="tool-pill-dot"></span>
-                  <span>JSON-focused</span>
-                </div>
-                <a class="tool-link" href="MinecraftJsonGenerator.html">
-                  Open tool
-                  <span class="chevron">↗</span>
-                </a>
-              </div>
-            </article>
-          </div>
-
-          <!-- Beat Saber Maps section (NEW) -->
-          <div class="maps-header">
-            <span class="maps-header-title">Beat Saber maps</span>
-            <span class="maps-header-pill">From BeatSaver · @rollylindenshnizzer</span>
-          </div>
-          <div id="beatsaber-maps" class="maps-grid" aria-busy="true">
-            <p class="maps-loading">Loading maps from BeatSaver…</p>
-          </div>
-        </section>
-
-        <!-- Sidebar / Info -->
-        <aside class="sidebar">
-          <h3>About this page</h3>
-          <p>
-            This is a simple landing page that collects some of my personal tools.
-            Bookmark it and drop new utilities in as they’re built.
-          </p>
-          <ul class="sidebar-list">
-            <li>
-              <span class="sidebar-bullet"></span>
-              <span>Click any card to jump to its dedicated page.</span>
-            </li>
-            <li>
-              <span class="sidebar-bullet"></span>
-              <span>Add more tools by copying the card structure.</span>
-            </li>
-            <li>
-              <span class="sidebar-bullet"></span>
-              <span>Style and layout are fully self-contained (no frameworks).</span>
-            </li>
-          </ul>
-        </aside>
-      </section>
-
-      <footer>
-        <span>© <span id="year"></span> rollylindenshnizzer · All tools are WIP.</span>
-        <span class="footer-right">
-          <span class="status-dot"></span>
-          <span>Routing: MinecraftJsonGenerator.html</span>
-        </span>
-      </footer>
-    </div>
-  </main>
-
-  <script>
-    // keep footer year up-to-date
-    document.getElementById("year").textContent = new Date().getFullYear();
-
-    // === BeatSaver maps loader ===
-    (function () {
-      const BEATSAVER_USER_ID = "4354784"; // your BeatSaver profile ID
-      const API_BASE = "https://api.beatsaver.com";
-      const mapsContainer = document.getElementById("beatsaber-maps");
-
-      if (!mapsContainer) return;
-
-      async function fetchPage(page) {
-        const url = `${API_BASE}/maps/uploader/${BEATSAVER_USER_ID}/${page}`;
-        const res = await fetch(url, {
-          headers: {
-            // Being a little polite with a UA; browsers will also send their own.
-            "X-Requested-With": "rollylindenshnizzer-site"
-          }
-        });
-
-        if (!res.ok) {
-          throw new Error(`BeatSaver responded with ${res.status}`);
-        }
-        return res.json();
-      }
-
-      async function fetchAllMaps(maxPages = 12) {
-        const all = [];
-        for (let page = 0; page < maxPages; page++) {
-          const data = await fetchPage(page);
-
-          // BeatSaver paged responses expose "docs" as the list of maps.
-          const docs = Array.isArray(data.docs) ? data.docs : [];
-
-          if (!docs.length) break;
-          all.push(...docs);
-
-          // If they give us a next_page / nextPage hint and it's null, stop.
-          if (data.next_page == null && data.nextPage == null && page >= (data.last_page ?? page)) {
-            break;
-          }
-        }
-        return all;
-      }
-
-      function formatDuration(seconds) {
-        if (!seconds && seconds !== 0) return "";
-        const s = Math.round(seconds);
-        const m = Math.floor(s / 60);
-        const r = s % 60;
-        return `${m}:${r.toString().padStart(2, "0")}`;
-      }
-
-      function renderMaps(maps) {
-        mapsContainer.innerHTML = "";
-        mapsContainer.removeAttribute("aria-busy");
-
-        if (!maps.length) {
-          const p = document.createElement("p");
-          p.className = "maps-empty";
-          p.textContent = "No maps found on BeatSaver (yet ✨).";
-          mapsContainer.appendChild(p);
-          return;
+    <meta charset="UTF-8" />
+    <title>rollylindenshnizzer's site</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --bg: #050816;
+            --bg-alt: #0b1020;
+            --accent: #7dd3fc;
+            --accent-soft: rgba(125, 211, 252, 0.12);
+            --text-main: #e5e7eb;
+            --text-muted: #9ca3af;
+            --border-subtle: rgba(148, 163, 184, 0.4);
+            --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+            --transition-fast: 180ms ease-out;
+            --transition-med: 220ms ease-out;
         }
 
-        maps.forEach(map => {
-          const article = document.createElement("article");
-          article.className = "tool-card map-card";
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-          const title = map.name || "Untitled map";
-          const desc =
-            map.description ||
-            (map.metadata && (map.metadata.songName || map.metadata.songAuthorName)
-              ? [map.metadata.songName, map.metadata.songAuthorName].filter(Boolean).join(" · ")
-              : "Custom Beat Saber map");
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                sans-serif;
+            background: radial-gradient(circle at top, #111827, #020617 46%, #000 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
 
-          // Extract simple stats if present
-          const version = Array.isArray(map.versions) && map.versions.length ? map.versions[0] : null;
-          const bpm =
-            (map.metadata && map.metadata.bpm) ||
-            (version && version.metadata && version.metadata.bpm) ||
-            null;
-          const durationSeconds =
-            (map.metadata && map.metadata.duration) ||
-            (version && version.duration) ||
-            null;
+        .shell {
+            width: 100%;
+            max-width: 900px;
+            background: linear-gradient(145deg, #020617dd, #020617f7);
+            border-radius: 28px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: var(--shadow-soft);
+            padding: 26px 26px 22px;
+            backdrop-filter: blur(18px);
+            position: relative;
+            overflow: hidden;
+        }
 
-          const uploadsAt =
-            (version && (version.createdAt || version.uploaded || version.publishedAt)) ||
-            map.createdAt ||
-            map.uploaded ||
-            null;
+        /* subtle glow blobs */
+        .glow {
+            position: absolute;
+            filter: blur(40px);
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-          const stats = map.stats || {};
-          const rating = typeof stats.rating === "number" ? stats.rating : null;
-          const downloads = stats.downloads;
-          const scoreLabel =
-            rating != null ? `${Math.round(rating * 100)}% rating` :
-            downloads != null ? `${downloads.toLocaleString()} downloads` :
-            null;
+        .glow.glow-1 {
+            width: 260px;
+            height: 260px;
+            top: -60px;
+            right: -40px;
+            background: radial-gradient(circle, #38bdf8, transparent 60%);
+        }
 
-          // Derive the key for BeatSaver link.
-          const key =
-            map.id ||
-            map.key ||
-            (version && (version.key || version.id)) ||
-            null;
+        .glow.glow-2 {
+            width: 220px;
+            height: 220px;
+            bottom: -40px;
+            left: -30px;
+            background: radial-gradient(circle, #f97316, transparent 60%);
+            opacity: 0.35;
+        }
 
-          const mapUrl = key
-            ? `https://beatsaver.com/maps/${key}`
-            : `https://beatsaver.com/profile/${BEATSAVER_USER_ID}`;
+        .shell-inner {
+            position: relative;
+            z-index: 1;
+        }
 
-          // Meta row
-          const metaDiv = document.createElement("div");
-          metaDiv.className = "map-meta";
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+        }
 
-          const titleEl = document.createElement("div");
-          titleEl.className = "map-title";
-          titleEl.textContent = title;
+        .title-block h1 {
+            font-size: clamp(1.6rem, 2vw + 1rem, 2rem);
+            letter-spacing: 0.03em;
+        }
 
-          const badge = document.createElement("span");
-          badge.className = "map-badge";
-          badge.textContent = "BeatSaver upload";
+        .title-block p {
+            margin-top: 4px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
 
-          metaDiv.appendChild(titleEl);
-          metaDiv.appendChild(badge);
+        .pill {
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: radial-gradient(circle at top left, #111827, #020617);
+        }
 
-          // Description
-          const descEl = document.createElement("p");
-          descEl.className = "map-desc";
-          descEl.textContent = desc;
+        .pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: #22c55e;
+            box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.24);
+        }
 
-          // Footer row
-          const footer = document.createElement("div");
-          footer.className = "map-footer";
+        .content {
+            display: grid;
+            grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.4fr);
+            gap: 20px;
+        }
 
-          const metaPill = document.createElement("div");
-          metaPill.className = "map-meta-pill";
-
-          const dot = document.createElement("span");
-          dot.className = "map-meta-dot";
-
-          const textBits = [];
-          if (bpm) textBits.push(`${Math.round(bpm)} BPM`);
-          const durLabel = formatDuration(durationSeconds);
-          if (durLabel) textBits.push(durLabel);
-          if (uploadsAt) {
-            const d = new Date(uploadsAt);
-            if (!isNaN(d.getTime())) {
-              textBits.push(
-                `Uploaded ${d.toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric"
-                })}`
-              );
+        @media (max-width: 720px) {
+            .shell {
+                padding: 20px 18px 18px;
             }
-          }
-          if (scoreLabel) textBits.push(scoreLabel);
 
-          const pillText = document.createElement("span");
-          pillText.textContent = textBits.join(" · ") || "Beat Saber custom level";
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
 
-          metaPill.appendChild(dot);
-          metaPill.appendChild(pillText);
+            .content {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
 
-          const link = document.createElement("a");
-          link.className = "map-link";
-          link.href = mapUrl;
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.innerHTML = `
+        .tools-section h2 {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .tools-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .tool-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 14px 14px 12px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            background: radial-gradient(circle at top left, #020617, #020617f2);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.55);
+            position: relative;
+            overflow: hidden;
+            transition: transform var(--transition-med), box-shadow var(--transition-med),
+                border-color var(--transition-med), background var(--transition-med);
+        }
+
+        .tool-card::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            background: radial-gradient(circle at top left,
+                    rgba(125, 211, 252, 0.16),
+                    transparent 55%);
+            opacity: 0;
+            transition: opacity var(--transition-med);
+            pointer-events: none;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-2px) translateZ(0);
+            border-color: rgba(125, 211, 252, 0.8);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .tool-name {
+            font-weight: 600;
+            font-size: 0.98rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
+        .tool-desc {
+            font-size: 0.86rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .tool-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tool-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            font-size: 0.78rem;
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .tool-pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--accent);
+            box-shadow: 0 0 8px rgba(125, 211, 252, 0.7);
+        }
+
+        .tool-link {
+            margin-left: auto;
+            font-size: 0.8rem;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            background: radial-gradient(circle at top, #020617, #020617f7);
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background var(--transition-fast), transform var(--transition-fast),
+                border-color var(--transition-fast);
+        }
+
+        .tool-link span.chevron {
+            display: inline-block;
+            transform: translateX(0);
+            transition: transform var(--transition-fast);
+        }
+
+        .tool-card:hover .tool-link {
+            border-color: var(--accent);
+            background: radial-gradient(circle at top, #020617, #020617);
+            transform: translateY(-0.5px);
+        }
+
+        .tool-card:hover .tool-link span.chevron {
+            transform: translateX(2px);
+        }
+
+        .sidebar {
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            background: radial-gradient(circle at top left, #020617f5, #020617);
+            padding: 14px 14px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.8);
+        }
+
+        .sidebar h3 {
+            font-size: 0.92rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--text-muted);
+        }
+
+        .sidebar p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .sidebar-list {
+            font-size: 0.8rem;
+            list-style: none;
+            display: grid;
+            gap: 4px;
+            padding-top: 4px;
+        }
+
+        .sidebar-list li {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .sidebar-bullet {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            background: radial-gradient(circle, rgba(148, 163, 184, 0.3), transparent);
+            flex-shrink: 0;
+        }
+
+        footer {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(148, 163, 184, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--accent);
+            box-shadow: 0 0 8px rgba(125, 211, 252, 0.7);
+        }
+
+        /* === Beat Saber maps section === */
+
+        .maps-header {
+            margin-top: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .maps-header-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--text-muted);
+        }
+
+        .maps-header-pill {
+            font-size: 0.75rem;
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            color: var(--accent);
+            background: rgba(15, 23, 42, 0.9);
+            white-space: nowrap;
+        }
+
+        /* toggle button */
+
+        .maps-toggle {
+            border: none;
+            background: none;
+            color: inherit;
+            padding: 0;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font: inherit;
+        }
+
+        .maps-toggle-icon {
+            font-size: 0.8rem;
+            transform: translateY(1px) rotate(-90deg);
+            transition: transform var(--transition-fast);
+            opacity: 0.8;
+        }
+
+        .maps-toggle.open .maps-toggle-icon,
+        .maps-toggle[aria-expanded="true"] .maps-toggle-icon {
+            transform: translateY(1px) rotate(0deg);
+        }
+
+        .maps-toggle:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+            border-radius: 999px;
+        }
+
+        .maps-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .maps-grid.collapsed {
+            display: none;
+        }
+
+        .map-card {
+            /* reuse tool-card base, tweak slightly */
+            padding-top: 13px;
+            padding-bottom: 11px;
+        }
+
+        .map-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .map-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .map-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
+        .map-desc {
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-top: 2px;
+        }
+
+        .map-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .map-meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            background: rgba(15, 23, 42, 0.9);
+            font-size: 0.74rem;
+        }
+
+        .map-meta-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: var(--accent);
+            box-shadow: 0 0 6px rgba(125, 211, 252, 0.8);
+        }
+
+        .map-link {
+            font-size: 0.8rem;
+            text-decoration: none;
+            padding: 5px 11px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            background: radial-gradient(circle at top, #020617, #020617f7);
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background var(--transition-fast), transform var(--transition-fast),
+                border-color var(--transition-fast);
+            margin-left: auto;
+        }
+
+        .map-link span.chevron {
+            display: inline-block;
+            transform: translateX(0);
+            transition: transform var(--transition-fast);
+        }
+
+        .map-card:hover .map-link {
+            border-color: var(--accent);
+            background: radial-gradient(circle at top, #020617, #020617);
+            transform: translateY(-0.5px);
+        }
+
+        .map-card:hover .map-link span.chevron {
+            transform: translateX(2px);
+        }
+
+        .maps-loading,
+        .maps-empty,
+        .maps-error {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding: 10px 0 4px;
+        }
+
+        .maps-error {
+            color: #fecaca;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="shell">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+
+        <div class="shell-inner">
+            <header>
+                <div class="title-block">
+                    <h1>rollylindenshnizzer's site</h1>
+                    <p>A tiny hub for my tools & experiments.</p>
+                </div>
+                <div class="pill">
+                    <span class="pill-dot"></span>
+                    <span>Tool index · live</span>
+                </div>
+            </header>
+
+            <section class="content">
+                <!-- Left column: tools + Beat Saber maps -->
+                <section class="tools-section">
+                    <h2>Tools</h2>
+                    <div class="tools-grid">
+                        <!-- Minecraft JSON Generator Card -->
+                        <article class="tool-card">
+                            <div class="tool-meta">
+                                <div class="tool-name">
+                                    🪓 Minecraft JSON Generator
+                                </div>
+                                <span class="tool-tag">Minecraft utility</span>
+                            </div>
+                            <p class="tool-desc">
+                                Generate Minecraft-ready JSON snippets without hand-writing every brace.
+                                Perfect for quick loot tables, advancements, blockstates, and more.
+                            </p>
+                            <div class="tool-footer">
+                                <div class="tool-pill">
+                                    <span class="tool-pill-dot"></span>
+                                    <span>JSON-focused</span>
+                                </div>
+                                <a class="tool-link" href="MinecraftJsonGenerator.html">
+                                    Open tool
+                                    <span class="chevron">↗</span>
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- Beat Saber Maps section -->
+                    <div class="maps-header">
+                        <button id="maps-toggle" class="maps-toggle" type="button" aria-expanded="false"
+                            aria-controls="beatsaber-maps">
+                            <span class="maps-header-title">Beat Saber maps</span>
+                            <span class="maps-toggle-icon">▾</span>
+                        </button>
+                        <span class="maps-header-pill">From BeatSaver · @rollylindenshnizzer</span>
+                    </div>
+                    <div id="beatsaber-maps" class="maps-grid collapsed" aria-busy="false">
+                        <!-- content is injected when opened -->
+                    </div>
+                </section>
+
+                <!-- Sidebar / Info -->
+                <aside class="sidebar">
+                    <h3>About this page</h3>
+                    <p>
+                        This is a simple landing page that collects some of my personal tools.
+                        Bookmark it and drop new utilities in as they’re built.
+                    </p>
+                    <ul class="sidebar-list">
+                        <li>
+                            <span class="sidebar-bullet"></span>
+                            <span>Click any card to jump to its dedicated page.</span>
+                        </li>
+                        <li>
+                            <span class="sidebar-bullet"></span>
+                            <span>Add more tools by copying the card structure.</span>
+                        </li>
+                        <li>
+                            <span class="sidebar-bullet"></span>
+                            <span>Style and layout are fully self-contained (no frameworks).</span>
+                        </li>
+                    </ul>
+                </aside>
+            </section>
+
+            <footer>
+                <span>© <span id="year"></span> rollylindenshnizzer · All tools are WIP.</span>
+                <span class="footer-right">
+                    <span class="status-dot"></span>
+                    <span>Routing: MinecraftJsonGenerator.html</span>
+                </span>
+            </footer>
+        </div>
+    </main>
+
+    <script>
+        // keep footer year up-to-date
+        document.getElementById("year").textContent = new Date().getFullYear();
+
+        // === BeatSaver maps loader (lazy, on first expand) ===
+        (function () {
+            const BEATSAVER_USER_ID = "4354784"; // your BeatSaver profile ID
+            const API_BASE = "https://api.beatsaver.com";
+            const mapsContainer = document.getElementById("beatsaber-maps");
+            const toggleButton = document.getElementById("maps-toggle");
+
+            if (!mapsContainer || !toggleButton) return;
+
+            let hasLoaded = false;
+            let isLoading = false;
+
+            async function fetchPage(page) {
+                const url = `${API_BASE}/maps/uploader/${BEATSAVER_USER_ID}/${page}`;
+                const res = await fetch(url); // no custom headers
+
+                if (!res.ok) {
+                    throw new Error(`BeatSaver responded with ${res.status}`);
+                }
+                return res.json();
+            }
+
+            async function fetchAllMaps(maxPages = 12) {
+                const all = [];
+                for (let page = 0; page < maxPages; page++) {
+                    const data = await fetchPage(page);
+
+                    // BeatSaver paged responses expose "docs" as the list of maps.
+                    const docs = Array.isArray(data.docs) ? data.docs : [];
+
+                    if (!docs.length) break;
+                    all.push(...docs);
+
+                    // Stop if they're telling us there are no more pages.
+                    if (data.next_page == null && data.nextPage == null && page >= (data.last_page ?? page)) {
+                        break;
+                    }
+                }
+                return all;
+            }
+
+            function formatDuration(seconds) {
+                if (!seconds && seconds !== 0) return "";
+                const s = Math.round(seconds);
+                const m = Math.floor(s / 60);
+                const r = s % 60;
+                return `${m}:${r.toString().padStart(2, "0")}`;
+            }
+
+            function renderMaps(maps) {
+                mapsContainer.innerHTML = "";
+                mapsContainer.removeAttribute("aria-busy");
+
+                if (!maps.length) {
+                    const p = document.createElement("p");
+                    p.className = "maps-empty";
+                    p.textContent = "No maps found on BeatSaver (yet ✨).";
+                    mapsContainer.appendChild(p);
+                    return;
+                }
+
+                maps.forEach(map => {
+                    const article = document.createElement("article");
+                    article.className = "tool-card map-card";
+
+                    const title = map.name || "Untitled map";
+                    const desc =
+                        map.description ||
+                        (map.metadata && (map.metadata.songName || map.metadata.songAuthorName)
+                            ? [map.metadata.songName, map.metadata.songAuthorName].filter(Boolean).join(" · ")
+                            : "Custom Beat Saber map");
+
+                    // Extract simple stats if present
+                    const version = Array.isArray(map.versions) && map.versions.length ? map.versions[0] : null;
+                    const bpm =
+                        (map.metadata && map.metadata.bpm) ||
+                        (version && version.metadata && version.metadata.bpm) ||
+                        null;
+                    const durationSeconds =
+                        (map.metadata && map.metadata.duration) ||
+                        (version && version.duration) ||
+                        null;
+
+                    const uploadsAt =
+                        (version && (version.createdAt || version.uploaded || version.publishedAt)) ||
+                        map.createdAt ||
+                        map.uploaded ||
+                        null;
+
+                    const stats = map.stats || {};
+                    const rating = typeof stats.rating === "number" ? stats.rating : null;
+                    const downloads = stats.downloads;
+                    const scoreLabel =
+                        rating != null ? `${Math.round(rating * 100)}% rating` :
+                            downloads != null ? `${downloads.toLocaleString()} downloads` :
+                                null;
+
+                    // Derive the key for BeatSaver link.
+                    const key =
+                        map.id ||
+                        map.key ||
+                        (version && (version.key || version.id)) ||
+                        null;
+
+                    const mapUrl = key
+                        ? `https://beatsaver.com/maps/${key}`
+                        : `https://beatsaver.com/profile/${BEATSAVER_USER_ID}`;
+
+                    // Meta row
+                    const metaDiv = document.createElement("div");
+                    metaDiv.className = "map-meta";
+
+                    const titleEl = document.createElement("div");
+                    titleEl.className = "map-title";
+                    titleEl.textContent = title;
+
+                    const badge = document.createElement("span");
+                    badge.className = "map-badge";
+                    badge.textContent = "BeatSaver upload";
+
+                    metaDiv.appendChild(titleEl);
+                    metaDiv.appendChild(badge);
+
+                    // Description
+                    const descEl = document.createElement("p");
+                    descEl.className = "map-desc";
+                    descEl.textContent = desc;
+
+                    // Footer row
+                    const footer = document.createElement("div");
+                    footer.className = "map-footer";
+
+                    const metaPill = document.createElement("div");
+                    metaPill.className = "map-meta-pill";
+
+                    const dot = document.createElement("span");
+                    dot.className = "map-meta-dot";
+
+                    const textBits = [];
+                    if (bpm) textBits.push(`${Math.round(bpm)} BPM`);
+                    const durLabel = formatDuration(durationSeconds);
+                    if (durLabel) textBits.push(durLabel);
+                    if (uploadsAt) {
+                        const d = new Date(uploadsAt);
+                        if (!isNaN(d.getTime())) {
+                            textBits.push(
+                                `Uploaded ${d.toLocaleDateString(undefined, {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric"
+                                })}`
+                            );
+                        }
+                    }
+                    if (scoreLabel) textBits.push(scoreLabel);
+
+                    const pillText = document.createElement("span");
+                    pillText.textContent = textBits.join(" · ") || "Beat Saber custom level";
+
+                    metaPill.appendChild(dot);
+                    metaPill.appendChild(pillText);
+
+                    const link = document.createElement("a");
+                    link.className = "map-link";
+                    link.href = mapUrl;
+                    link.target = "_blank";
+                    link.rel = "noopener noreferrer";
+                    link.innerHTML = `
             View on BeatSaver
             <span class="chevron">↗</span>
           `;
 
-          footer.appendChild(metaPill);
-          footer.appendChild(link);
+                    footer.appendChild(metaPill);
+                    footer.appendChild(link);
 
-          article.appendChild(metaDiv);
-          article.appendChild(descEl);
-          article.appendChild(footer);
+                    article.appendChild(metaDiv);
+                    article.appendChild(descEl);
+                    article.appendChild(footer);
 
-          mapsContainer.appendChild(article);
-        });
-      }
+                    mapsContainer.appendChild(article);
+                });
+            }
 
-      (async function init() {
-        try {
-          const maps = await fetchAllMaps();
-          renderMaps(maps);
-        } catch (err) {
-          console.error("Failed to load BeatSaver maps:", err);
-          mapsContainer.innerHTML = "";
-          mapsContainer.removeAttribute("aria-busy");
-          const p = document.createElement("p");
-          p.className = "maps-error";
-          p.textContent = "Couldn’t load maps from BeatSaver right now.";
-          mapsContainer.appendChild(p);
-        }
-      })();
-    })();
-  </script>
+            async function ensureMapsLoaded() {
+                if (hasLoaded || isLoading) return;
+                isLoading = true;
+
+                mapsContainer.setAttribute("aria-busy", "true");
+                mapsContainer.innerHTML = '<p class="maps-loading">Loading maps from BeatSaver…</p>';
+
+                try {
+                    const maps = await fetchAllMaps();
+                    renderMaps(maps);
+                    hasLoaded = true;
+                } catch (err) {
+                    console.error("Failed to load BeatSaver maps:", err);
+                    mapsContainer.innerHTML = "";
+                    mapsContainer.removeAttribute("aria-busy");
+                    const p = document.createElement("p");
+                    p.className = "maps-error";
+                    p.textContent = "Couldn’t load maps from BeatSaver right now.";
+                    mapsContainer.appendChild(p);
+                } finally {
+                    isLoading = false;
+                }
+            }
+
+            // Toggle behavior
+            toggleButton.addEventListener("click", async () => {
+                const isCollapsed = mapsContainer.classList.contains("collapsed");
+
+                if (isCollapsed) {
+                    // expanding
+                    toggleButton.setAttribute("aria-expanded", "true");
+                    toggleButton.classList.add("open");
+                    mapsContainer.classList.remove("collapsed");
+                    await ensureMapsLoaded();
+                } else {
+                    // collapsing
+                    toggleButton.setAttribute("aria-expanded", "false");
+                    toggleButton.classList.remove("open");
+                    mapsContainer.classList.add("collapsed");
+                }
+            });
+        })();
+    </script>
 </body>
+
 </html>
