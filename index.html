@@ -152,6 +152,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      margin-bottom: 18px;
     }
 
     .tool-card {
@@ -362,6 +363,150 @@
       background: var(--accent);
       box-shadow: 0 0 8px rgba(125, 211, 252, 0.7);
     }
+
+    /* === Beat Saber maps section === */
+
+    .maps-header {
+      margin-top: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .maps-header-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .maps-header-pill {
+      font-size: 0.75rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--accent);
+      background: rgba(15, 23, 42, 0.9);
+      white-space: nowrap;
+    }
+
+    .maps-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .map-card {
+      /* reuse tool-card base, tweak slightly */
+      padding-top: 13px;
+      padding-bottom: 11px;
+    }
+
+    .map-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .map-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .map-badge {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .map-desc {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .map-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .map-meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.74rem;
+    }
+
+    .map-meta-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 6px rgba(125, 211, 252, 0.8);
+    }
+
+    .map-link {
+      font-size: 0.8rem;
+      text-decoration: none;
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top, #020617, #020617f7);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background var(--transition-fast), transform var(--transition-fast),
+        border-color var(--transition-fast);
+      margin-left: auto;
+    }
+
+    .map-link span.chevron {
+      display: inline-block;
+      transform: translateX(0);
+      transition: transform var(--transition-fast);
+    }
+
+    .map-card:hover .map-link {
+      border-color: var(--accent);
+      background: radial-gradient(circle at top, #020617, #020617);
+      transform: translateY(-0.5px);
+    }
+
+    .map-card:hover .map-link span.chevron {
+      transform: translateX(2px);
+    }
+
+    .maps-loading,
+    .maps-empty,
+    .maps-error {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      padding: 10px 0 4px;
+    }
+
+    .maps-error {
+      color: #fecaca;
+    }
   </style>
 </head>
 <body>
@@ -382,7 +527,7 @@
       </header>
 
       <section class="content">
-        <!-- Tools list -->
+        <!-- Left column: tools + Beat Saber maps -->
         <section class="tools-section">
           <h2>Tools</h2>
           <div class="tools-grid">
@@ -409,6 +554,15 @@
                 </a>
               </div>
             </article>
+          </div>
+
+          <!-- Beat Saber Maps section (NEW) -->
+          <div class="maps-header">
+            <span class="maps-header-title">Beat Saber maps</span>
+            <span class="maps-header-pill">From BeatSaver · @rollylindenshnizzer</span>
+          </div>
+          <div id="beatsaber-maps" class="maps-grid" aria-busy="true">
+            <p class="maps-loading">Loading maps from BeatSaver…</p>
           </div>
         </section>
 
@@ -449,6 +603,206 @@
   <script>
     // keep footer year up-to-date
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // === BeatSaver maps loader ===
+    (function () {
+      const BEATSAVER_USER_ID = "4354784"; // your BeatSaver profile ID
+      const API_BASE = "https://api.beatsaver.com";
+      const mapsContainer = document.getElementById("beatsaber-maps");
+
+      if (!mapsContainer) return;
+
+      async function fetchPage(page) {
+        const url = `${API_BASE}/maps/uploader/${BEATSAVER_USER_ID}/${page}`;
+        const res = await fetch(url, {
+          headers: {
+            // Being a little polite with a UA; browsers will also send their own.
+            "X-Requested-With": "rollylindenshnizzer-site"
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error(`BeatSaver responded with ${res.status}`);
+        }
+        return res.json();
+      }
+
+      async function fetchAllMaps(maxPages = 12) {
+        const all = [];
+        for (let page = 0; page < maxPages; page++) {
+          const data = await fetchPage(page);
+
+          // BeatSaver paged responses expose "docs" as the list of maps.
+          const docs = Array.isArray(data.docs) ? data.docs : [];
+
+          if (!docs.length) break;
+          all.push(...docs);
+
+          // If they give us a next_page / nextPage hint and it's null, stop.
+          if (data.next_page == null && data.nextPage == null && page >= (data.last_page ?? page)) {
+            break;
+          }
+        }
+        return all;
+      }
+
+      function formatDuration(seconds) {
+        if (!seconds && seconds !== 0) return "";
+        const s = Math.round(seconds);
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return `${m}:${r.toString().padStart(2, "0")}`;
+      }
+
+      function renderMaps(maps) {
+        mapsContainer.innerHTML = "";
+        mapsContainer.removeAttribute("aria-busy");
+
+        if (!maps.length) {
+          const p = document.createElement("p");
+          p.className = "maps-empty";
+          p.textContent = "No maps found on BeatSaver (yet ✨).";
+          mapsContainer.appendChild(p);
+          return;
+        }
+
+        maps.forEach(map => {
+          const article = document.createElement("article");
+          article.className = "tool-card map-card";
+
+          const title = map.name || "Untitled map";
+          const desc =
+            map.description ||
+            (map.metadata && (map.metadata.songName || map.metadata.songAuthorName)
+              ? [map.metadata.songName, map.metadata.songAuthorName].filter(Boolean).join(" · ")
+              : "Custom Beat Saber map");
+
+          // Extract simple stats if present
+          const version = Array.isArray(map.versions) && map.versions.length ? map.versions[0] : null;
+          const bpm =
+            (map.metadata && map.metadata.bpm) ||
+            (version && version.metadata && version.metadata.bpm) ||
+            null;
+          const durationSeconds =
+            (map.metadata && map.metadata.duration) ||
+            (version && version.duration) ||
+            null;
+
+          const uploadsAt =
+            (version && (version.createdAt || version.uploaded || version.publishedAt)) ||
+            map.createdAt ||
+            map.uploaded ||
+            null;
+
+          const stats = map.stats || {};
+          const rating = typeof stats.rating === "number" ? stats.rating : null;
+          const downloads = stats.downloads;
+          const scoreLabel =
+            rating != null ? `${Math.round(rating * 100)}% rating` :
+            downloads != null ? `${downloads.toLocaleString()} downloads` :
+            null;
+
+          // Derive the key for BeatSaver link.
+          const key =
+            map.id ||
+            map.key ||
+            (version && (version.key || version.id)) ||
+            null;
+
+          const mapUrl = key
+            ? `https://beatsaver.com/maps/${key}`
+            : `https://beatsaver.com/profile/${BEATSAVER_USER_ID}`;
+
+          // Meta row
+          const metaDiv = document.createElement("div");
+          metaDiv.className = "map-meta";
+
+          const titleEl = document.createElement("div");
+          titleEl.className = "map-title";
+          titleEl.textContent = title;
+
+          const badge = document.createElement("span");
+          badge.className = "map-badge";
+          badge.textContent = "BeatSaver upload";
+
+          metaDiv.appendChild(titleEl);
+          metaDiv.appendChild(badge);
+
+          // Description
+          const descEl = document.createElement("p");
+          descEl.className = "map-desc";
+          descEl.textContent = desc;
+
+          // Footer row
+          const footer = document.createElement("div");
+          footer.className = "map-footer";
+
+          const metaPill = document.createElement("div");
+          metaPill.className = "map-meta-pill";
+
+          const dot = document.createElement("span");
+          dot.className = "map-meta-dot";
+
+          const textBits = [];
+          if (bpm) textBits.push(`${Math.round(bpm)} BPM`);
+          const durLabel = formatDuration(durationSeconds);
+          if (durLabel) textBits.push(durLabel);
+          if (uploadsAt) {
+            const d = new Date(uploadsAt);
+            if (!isNaN(d.getTime())) {
+              textBits.push(
+                `Uploaded ${d.toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric"
+                })}`
+              );
+            }
+          }
+          if (scoreLabel) textBits.push(scoreLabel);
+
+          const pillText = document.createElement("span");
+          pillText.textContent = textBits.join(" · ") || "Beat Saber custom level";
+
+          metaPill.appendChild(dot);
+          metaPill.appendChild(pillText);
+
+          const link = document.createElement("a");
+          link.className = "map-link";
+          link.href = mapUrl;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.innerHTML = `
+            View on BeatSaver
+            <span class="chevron">↗</span>
+          `;
+
+          footer.appendChild(metaPill);
+          footer.appendChild(link);
+
+          article.appendChild(metaDiv);
+          article.appendChild(descEl);
+          article.appendChild(footer);
+
+          mapsContainer.appendChild(article);
+        });
+      }
+
+      (async function init() {
+        try {
+          const maps = await fetchAllMaps();
+          renderMaps(maps);
+        } catch (err) {
+          console.error("Failed to load BeatSaver maps:", err);
+          mapsContainer.innerHTML = "";
+          mapsContainer.removeAttribute("aria-busy");
+          const p = document.createElement("p");
+          p.className = "maps-error";
+          p.textContent = "Couldn’t load maps from BeatSaver right now.";
+          mapsContainer.appendChild(p);
+        }
+      })();
+    })();
   </script>
 </body>
 </html>
