@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MineRecipe Studio – Minecraft 1.21+ Recipe Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-elevated: #0b1020;
+      --bg-elevated-soft: #0e1224;
+      --accent: #4ade80;
+      --accent-soft: rgba(74, 222, 128, 0.18);
+      --accent-strong: #22c55e;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.25);
+      --danger: #fb7185;
+      --radius-xl: 18px;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.65);
+      --shadow-subtle: 0 10px 30px rgba(15, 23, 42, 0.4);
+      --slot-border: rgba(148, 163, 184, 0.3);
+      --slot-bg: rgba(15, 23, 42, 0.7);
+      --chip-bg: rgba(15, 23, 42, 0.85);
+      --chip-selected: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 55%, #020617 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .app {
+      max-width: 1400px;
+      width: 100%;
+      margin: 20px;
+      padding: 18px 18px 24px;
+      border-radius: 24px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.28), transparent 45%),
+                  radial-gradient(circle at bottom right, rgba(45, 212, 191, 0.3), transparent 50%),
+                  linear-gradient(145deg, rgba(15, 23, 42, 0.97), #020617);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+
+    header .title-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-pill {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      background: radial-gradient(circle at 30% 20%, #facc15, #f97316 40%, #0f172a 80%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9),
+                  0 10px 30px rgba(15, 23, 42, 0.9);
+      font-size: 22px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: 0.03em;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    header h1 span {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.78rem;
+    }
+
+    .badge {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.85);
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      color: var(--muted);
+    }
+
+    .badge strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .panel {
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+      border-radius: var(--radius-xl);
+      padding: 14px 14px 16px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 0.98rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .panel-header span {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .panel-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.86rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .field label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+    }
+
+    .field small {
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 0.86rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.4);
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .toggle-row input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--accent);
+    }
+
+    .chip-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 6px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: var(--chip-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.07s ease;
+    }
+
+    .chip-main {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .chip-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.88rem;
+    }
+
+    .chip-label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chip-label strong {
+      font-size: 0.82rem;
+    }
+
+    .chip-label span {
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .chip-meta {
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .chip.selected {
+      background: var(--chip-selected);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.4),
+                  0 10px 30px rgba(15, 23, 42, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .chip.selected .chip-icon {
+      background: var(--accent-soft);
+    }
+
+    .chip.selected .chip-meta {
+      color: var(--accent);
+    }
+
+    .pill {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.7rem;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.2);
+    }
+
+    /* Recipe editors */
+
+    .type-editor {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.99));
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .type-editor.active {
+      display: flex;
+    }
+
+    .type-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.84rem;
+      gap: 6px;
+    }
+
+    .type-header strong {
+      font-size: 0.88rem;
+    }
+
+    .type-header span {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .editor-grid-wrapper {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .grid-card {
+      padding: 8px;
+      border-radius: 14px;
+      border: 1px solid var(--slot-border);
+      background: var(--bg-elevated-soft);
+      display: inline-flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .grid-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+    }
+
+    .craft-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 44px);
+      grid-template-rows: repeat(3, 44px);
+      gap: 3px;
+    }
+
+    .craft-slot {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--slot-border);
+      background: var(--slot-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.7rem;
+      text-align: center;
+      padding: 3px;
+      color: var(--muted);
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.06s ease, background 0.12s;
+    }
+
+    .craft-slot.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.4);
+      transform: translateY(-1px);
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(22, 163, 74, 0.22));
+      color: #e5e7eb;
+    }
+
+    .craft-slot span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .slot-caption {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .slot-editor {
+      min-width: 210px;
+      max-width: 270px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.98));
+    }
+
+    .slot-editor-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .ingredient-type-row {
+      display: flex;
+      gap: 6px;
+      font-size: 0.75rem;
+    }
+
+    .ingredient-type-row label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--muted);
+    }
+
+    .ingredient-type-row input[type="radio"] {
+      accent-color: var(--accent);
+    }
+
+    .slot-editor .field {
+      margin-top: 2px;
+    }
+
+    .slot-editor button {
+      align-self: flex-start;
+    }
+
+    .ingredient-pill {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .ingredient-pill code {
+      color: #e5e7eb;
+    }
+
+    .furnace-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 850px) {
+      .furnace-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .furnace-layout .field {
+      flex: 1;
+    }
+
+    .badge-note {
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-note span {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Output panel */
+
+    .output-path {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .output-path code {
+      font-size: 0.78rem;
+      color: #e5e7eb;
+    }
+
+    .output-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text);
+      font-size: 0.82rem;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.08s, box-shadow 0.12s;
+    }
+
+    .btn-primary {
+      border-color: var(--accent-strong);
+      background: linear-gradient(135deg, var(--accent-strong), #16a34a);
+      color: #022c22;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(22, 163, 74, 0.45);
+    }
+
+    .btn-icon {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.7);
+      background: rgba(15, 23, 42, 0.99);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .output-json-shell {
+      flex: 1;
+      min-height: 0;
+      margin-top: 8px;
+      border-radius: 14px;
+      background: #020617;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.9);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .output-json-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(74, 222, 128, 0.08), transparent 50%);
+      pointer-events: none;
+    }
+
+    .output-json {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      overflow: auto;
+      padding: 8px;
+      border-radius: 10px;
+      background: #020617;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: #e5e7eb;
+      white-space: pre;
+    }
+
+    .output-footer-note {
+      font-size: 0.72rem;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.98);
+      color: var(--text);
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 9999;
+    }
+
+    .toast.show {
+      display: inline-flex;
+      animation: toastIn 0.2s ease-out;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 5px);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    }
+
+    .toast span {
+      color: var(--accent);
+    }
+
+    .warning-text {
+      font-size: 0.75rem;
+      color: var(--danger);
+    }
+
+    .tiny {
+      font-size: 0.7rem;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title-section">
+      <div class="logo-pill">⛏️</div>
+      <div>
+        <h1>
+          MineRecipe Studio
+          <span>Minecraft 1.21+ JSON recipe generator</span>
+        </h1>
+        <div class="badge-row">
+          <div class="badge">
+            <strong>All vanilla types</strong>
+            <span>crafting, cooking, smithing, stonecutting, specials</span>
+          </div>
+          <div class="badge">
+            <span>Visual editor</span>
+            <span>3×3 grid, furnace & smithing layouts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="badge-row">
+      <div class="pill">
+        <div class="pill-dot"></div>
+        <span>Java Edition 1.21+ (recipe/ folder &amp; result.id)</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Left: Global settings + type chooser -->
+    <section class="panel panel-settings">
+      <div class="panel-header">
+        <h2>Basics &amp; Result</h2>
+        <span>Namespace, file path, output stack</span>
+      </div>
+      <div class="panel-body">
+        <div class="field-row">
+          <div class="field" style="flex:1.1">
+            <label for="nsInput">Pack namespace</label>
+            <input id="nsInput" type="text" placeholder="mydatapack" value="mydatapack" />
+            <small>Used in <code>data/&lt;namespace&gt;/recipe/&lt;path&gt;.json</code></small>
+          </div>
+          <div class="field" style="flex:1.2">
+            <label for="pathInput">Recipe path (file name)</label>
+            <input id="pathInput" type="text" placeholder="my_cool_recipe" value="my_cool_recipe" />
+            <small>No <code>.json</code> – folders allowed, e.g. <code>weapons/netherite_upgrade</code></small>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field" style="flex:1.4">
+            <label for="resultItemInput">Result item ID</label>
+            <input id="resultItemInput" type="text" placeholder="minecraft:diamond_sword" />
+            <small>Required for most recipe types (ignored by smithing_trim, crafting_decorated_pot &amp; crafting_special_*)</small>
+          </div>
+          <div class="field" style="max-width:130px">
+            <label for="resultCountInput">Count</label>
+            <input id="resultCountInput" type="number" min="1" step="1" value="1" />
+            <small>Stack size (where supported)</small>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field" style="flex:1">
+            <label for="groupInput">Recipe group (optional)</label>
+            <input id="groupInput" type="text" placeholder="my_group" />
+            <small>Groups recipes in the recipe book</small>
+          </div>
+          <div class="field" style="flex:1">
+            <label for="categorySelect">Category</label>
+            <select id="categorySelect">
+              <option value="misc">misc</option>
+              <option value="building">building</option>
+              <option value="redstone">redstone</option>
+              <option value="equipment">equipment</option>
+              <option value="food">food</option>
+              <option value="combat">combat</option>
+              <option value="brewing">brewing</option>
+              <option value="none">(omit field)</option>
+            </select>
+            <small>Recipe book tab (1.20+)</small>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <input id="showNotificationToggle" type="checkbox" checked />
+          <label for="showNotificationToggle">Show recipe unlock toast (set <code>show_notification</code> to false when off)</label>
+        </div>
+
+        <div class="field">
+          <label>Recipe type</label>
+          <div class="chip-row" id="typeChips"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Middle: Editor per type -->
+    <section class="panel panel-editor">
+      <div class="panel-header">
+        <h2>Recipe Editor</h2>
+        <span>Visual layout based on the selected recipe type</span>
+      </div>
+      <div class="panel-body" id="editors">
+        <!-- Crafting shaped -->
+        <div class="type-editor" data-editor="crafting_shaped">
+          <div class="type-header">
+            <strong>Shaped crafting – 3×3 pattern</strong>
+            <span>Click a slot, then define an ingredient on the right</span>
+          </div>
+          <div class="editor-grid-wrapper">
+            <div class="grid-card">
+              <div class="grid-title">Crafting grid (3×3)</div>
+              <div class="craft-grid" id="shapedGrid"></div>
+              <div class="slot-caption tiny">Empty rows/columns are trimmed automatically in the JSON pattern.</div>
+            </div>
+            <div class="slot-editor" id="shapedSlotEditor">
+              <div class="slot-editor-title">
+                <span>Selected slot</span>
+                <span id="shapedSlotLabel" class="tiny">None selected</span>
+              </div>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="shapedSlotKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="shapedSlotKind" value="tag" /> Tag</label>
+              </div>
+              <div class="field">
+                <label for="shapedSlotValue">Item or tag</label>
+                <input id="shapedSlotValue" type="text" placeholder="minecraft:iron_ingot or minecraft:logs" />
+              </div>
+              <button class="btn" type="button" id="shapedClearSlotBtn">
+                <span class="btn-icon">🧹</span> Clear slot
+              </button>
+              <div class="ingredient-pill tiny">
+                Tip: use <code>minecraft:logs</code> with <b>Tag</b> for all log variants.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Crafting shapeless -->
+        <div class="type-editor" data-editor="crafting_shapeless">
+          <div class="type-header">
+            <strong>Shapeless crafting – up to 9 ingredients</strong>
+            <span>Order doesn’t matter</span>
+          </div>
+          <div class="editor-grid-wrapper">
+            <div class="grid-card">
+              <div class="grid-title">Ingredient slots (max 9)</div>
+              <div class="craft-grid" id="shapelessGrid"></div>
+              <div class="slot-caption tiny">Use as many slots as needed; the JSON arranges them automatically.</div>
+            </div>
+            <div class="slot-editor" id="shapelessSlotEditor">
+              <div class="slot-editor-title">
+                <span>Selected ingredient</span>
+                <span id="shapelessSlotLabel" class="tiny">None selected</span>
+              </div>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="shapelessSlotKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="shapelessSlotKind" value="tag" /> Tag</label>
+              </div>
+              <div class="field">
+                <label for="shapelessSlotValue">Item or tag</label>
+                <input id="shapelessSlotValue" type="text" placeholder="minecraft:stick or minecraft:planks" />
+              </div>
+              <button class="btn" type="button" id="shapelessClearSlotBtn">
+                <span class="btn-icon">🧹</span> Clear slot
+              </button>
+              <div class="ingredient-pill tiny">
+                Repeat the same ingredient in different slots to require multiples (e.g. 2 sticks).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cooking: furnace / smoker / blast / campfire -->
+        <div class="type-editor" data-editor="cooking">
+          <div class="type-header">
+            <strong>Cooking recipes – furnace, smoker, blast furnace, campfire</strong>
+            <span>Uses the same JSON layout for all four types</span>
+          </div>
+          <div class="furnace-layout">
+            <div class="field">
+              <label>Input ingredient</label>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="cookKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="cookKind" value="tag" /> Tag</label>
+              </div>
+              <input id="cookValue" type="text" placeholder="minecraft:raw_iron or minecraft:ores" />
+              <small class="hint">Will be placed in <code>ingredient</code> for smelting / blasting / smoking / campfire_cooking.</small>
+            </div>
+            <div class="field">
+              <label>Cooking settings</label>
+              <div class="field-row">
+                <div class="field" style="flex:1">
+                  <label for="cookExpInput">Experience</label>
+                  <input id="cookExpInput" type="number" step="0.1" value="0.1" />
+                  <small class="tiny">Exp orbs granted (e.g. 0.1)</small>
+                </div>
+                <div class="field" style="flex:1">
+                  <label for="cookTimeInput">Cook time (ticks)</label>
+                  <input id="cookTimeInput" type="number" step="1" value="200" />
+                  <small class="tiny">Default furnace: 200, smoker/blast: 100, campfire: 600</small>
+                </div>
+              </div>
+              <div class="badge-note tiny">
+                <span>Note</span>
+                <div>Result item &amp; count are taken from the global fields above.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stonecutting -->
+        <div class="type-editor" data-editor="stonecutting">
+          <div class="type-header">
+            <strong>Stonecutting</strong>
+            <span>One input to one (or more) outputs</span>
+          </div>
+          <div class="editor-grid-wrapper">
+            <div class="slot-editor">
+              <div class="slot-editor-title">
+                <span>Input block / tag</span>
+              </div>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="stoneKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="stoneKind" value="tag" /> Tag</label>
+              </div>
+              <div class="field">
+                <label for="stoneValue">Item or tag</label>
+                <input id="stoneValue" type="text" placeholder="minecraft:stone or minecraft:stone_bricks" />
+              </div>
+            </div>
+            <div class="slot-editor">
+              <div class="slot-editor-title">
+                <span>Output</span>
+              </div>
+              <div class="field">
+                <label for="stoneCountInput">Output count</label>
+                <input id="stoneCountInput" type="number" min="1" step="1" value="1" />
+                <small class="tiny">Result item ID comes from global fields.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smithing transform -->
+        <div class="type-editor" data-editor="smithing_transform">
+          <div class="type-header">
+            <strong>Smithing – transform (upgrades)</strong>
+            <span>Template + base + addition → new item</span>
+          </div>
+          <div class="editor-grid-wrapper">
+            <div class="slot-editor" style="flex:1">
+              <div class="slot-editor-title">
+                <span>Template</span>
+                <span class="tiny">e.g. <code>minecraft:netherite_upgrade_smithing_template</code></span>
+              </div>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="smithTemplateKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="smithTemplateKind" value="tag" /> Tag</label>
+              </div>
+              <input id="smithTemplateValue" type="text" placeholder="minecraft:netherite_upgrade_smithing_template" />
+            </div>
+            <div class="slot-editor" style="flex:1">
+              <div class="slot-editor-title">
+                <span>Base</span>
+                <span class="tiny">The item to upgrade</span>
+              </div>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="smithBaseKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="smithBaseKind" value="tag" /> Tag</label>
+              </div>
+              <input id="smithBaseValue" type="text" placeholder="minecraft:diamond_sword" />
+            </div>
+            <div class="slot-editor" style="flex:1">
+              <div class="slot-editor-title">
+                <span>Addition</span>
+                <span class="tiny">The material</span>
+              </div>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="smithAddKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="smithAddKind" value="tag" /> Tag</label>
+              </div>
+              <input id="smithAddValue" type="text" placeholder="minecraft:netherite_ingot" />
+            </div>
+          </div>
+          <div class="hint tiny">
+            Result item &amp; count are taken from the global fields (e.g. <code>minecraft:netherite_sword</code> x1).
+          </div>
+        </div>
+
+        <!-- Smithing trim -->
+        <div class="type-editor" data-editor="smithing_trim">
+          <div class="type-header">
+            <strong>Smithing – trim (armor trims)</strong>
+            <span>Template + armor + material → trimmed armor</span>
+          </div>
+          <div class="editor-grid-wrapper">
+            <div class="slot-editor" style="flex:1">
+              <div class="slot-editor-title">
+                <span>Template</span>
+              </div>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="trimTemplateKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="trimTemplateKind" value="tag" /> Tag</label>
+              </div>
+              <input id="trimTemplateValue" type="text" placeholder="minecraft:coast_armor_trim_smithing_template" />
+            </div>
+            <div class="slot-editor" style="flex:1">
+              <div class="slot-editor-title">
+                <span>Armor (base)</span>
+              </div>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="trimBaseKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="trimBaseKind" value="tag" /> Tag</label>
+              </div>
+              <input id="trimBaseValue" type="text" placeholder="minecraft:diamond_chestplate" />
+            </div>
+            <div class="slot-editor" style="flex:1">
+              <div class="slot-editor-title">
+                <span>Material (addition)</span>
+              </div>
+              <div class="ingredient-type-row">
+                <label><input type="radio" name="trimAddKind" value="item" checked /> Item ID</label>
+                <label><input type="radio" name="trimAddKind" value="tag" /> Tag</label>
+              </div>
+              <input id="trimAddValue" type="text" placeholder="minecraft:redstone" />
+            </div>
+          </div>
+          <div class="warning-text tiny">
+            Trim recipes don’t specify a <code>result</code> stack – the game copies and decorates the base armor item.
+          </div>
+        </div>
+
+        <!-- Decorated pot -->
+        <div class="type-editor" data-editor="crafting_decorated_pot">
+          <div class="type-header">
+            <strong>Decorated pot – special crafting serializer</strong>
+            <span>Vanilla 1.21+ type with minimal JSON</span>
+          </div>
+          <div class="hint tiny">
+            The vanilla decorated pot recipe uses a dedicated <code>crafting_decorated_pot</code> serializer.
+            For 1.21+, the built-in recipe is effectively just:
+            <code>{"type": "minecraft:crafting_decorated_pot", "category": "misc"}</code>.
+            This editor will generate that minimal recipe plus your common fields.
+          </div>
+        </div>
+
+        <!-- Crafting specials -->
+        <div class="type-editor" data-editor="crafting_special">
+          <div class="type-header">
+            <strong>Special crafting recipes</strong>
+            <span>Handled by built-in logic</span>
+          </div>
+          <div class="field">
+            <label for="specialTypeSelect">Selected special serializer</label>
+            <select id="specialTypeSelect">
+              <option value="minecraft:crafting_special_armordye">crafting_special_armordye – dye leather armor</option>
+              <option value="minecraft:crafting_special_bannerduplicate">crafting_special_bannerduplicate – copy banner patterns</option>
+              <option value="minecraft:crafting_special_bookcloning">crafting_special_bookcloning – copy written books</option>
+              <option value="minecraft:crafting_special_firework_rocket">crafting_special_firework_rocket – fireworks</option>
+              <option value="minecraft:crafting_special_firework_star">crafting_special_firework_star – firework stars</option>
+              <option value="minecraft:crafting_special_firework_star_fade">crafting_special_firework_star_fade – add fades to stars</option>
+              <option value="minecraft:crafting_special_mapcloning">crafting_special_mapcloning – copy maps</option>
+              <option value="minecraft:crafting_special_mapextending">crafting_special_mapextending – zoom maps</option>
+              <option value="minecraft:crafting_special_repairitem">crafting_special_repairitem – tool repair</option>
+              <option value="minecraft:crafting_special_shielddecoration">crafting_special_shielddecoration – banner → shield</option>
+              <option value="minecraft:crafting_special_shulkerboxcoloring">crafting_special_shulkerboxcoloring – recolor shulker boxes</option>
+              <option value="minecraft:crafting_special_tippedarrow">crafting_special_tippedarrow – tipped arrows</option>
+              <option value="minecraft:crafting_special_suspiciousstew">crafting_special_suspiciousstew – suspicious stew effects</option>
+              <option value="minecraft:crafting_transmute">crafting_transmute – experimental special serializer</option>
+            </select>
+            <small class="hint">
+              Special recipes ignore pattern/ingredients in JSON – the game implements the logic.
+              Your output will simply be <code>{"type": "...", ...common fields}</code>.
+            </small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: JSON output -->
+    <section class="panel panel-output">
+      <div class="panel-header">
+        <h2>JSON Output</h2>
+        <span>Drop into your data pack under <code>data/&lt;namespace&gt;/recipe/</code></span>
+      </div>
+      <div class="panel-body">
+        <div class="output-path">
+          <div>Recipe file path (1.21+):</div>
+          <code id="filePathPreview">data/mydatapack/recipe/my_cool_recipe.json</code>
+        </div>
+        <div class="output-actions">
+          <button class="btn btn-primary" type="button" id="copyJsonBtn">
+            <span class="btn-icon">📋</span> Copy JSON
+          </button>
+          <button class="btn" type="button" id="downloadJsonBtn">
+            <span class="btn-icon">💾</span> Download <code>.json</code>
+          </button>
+        </div>
+        <div class="output-json-shell">
+          <pre class="output-json" id="jsonOutput">{}</pre>
+          <div class="output-footer-note">
+            This JSON uses the 1.21+ format (e.g. <code>result.id</code> for item stacks).  
+            Paste into your data pack or world <code>datapacks/</code> folder.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast">
+  <span>✔</span>
+  <div id="toastText">Copied!</div>
+</div>
+
+<script>
+  // --- Small helpers -------------------------------------------------------
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    const text = document.getElementById('toastText');
+    text.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 1600);
+  }
+
+  function cloneIngredient(kind, value) {
+    if (!kind || !value) return null;
+    return { kind, value };
+  }
+
+  function ingredientToJson(ing) {
+    if (!ing || !ing.value.trim()) return null;
+    const v = ing.value.trim();
+    if (!v) return null;
+    if (ing.kind === 'tag') {
+      return { tag: v };
+    }
+    return { item: v };
+  }
+
+  // --- State ---------------------------------------------------------------
+  const state = {
+    namespace: 'mydatapack',
+    path: 'my_cool_recipe',
+    resultItem: '',
+    resultCount: 1,
+    group: '',
+    category: 'misc',
+    showNotification: true, // if false => show_notification: false
+    typeId: 'minecraft:crafting_shaped',
+    editorKey: 'crafting_shaped',
+
+    shaped: {
+      grid: Array.from({ length: 3 }, () =>
+        Array.from({ length: 3 }, () => null)
+      ),
+      selected: null
+    },
+    shapeless: {
+      grid: Array.from({ length: 3 }, () =>
+        Array.from({ length: 3 }, () => null)
+      ),
+      selected: null
+    },
+    cooking: {
+      ingredient: { kind: 'item', value: '' },
+      experience: 0.1,
+      cookingTime: 200
+    },
+    stonecut: {
+      ingredient: { kind: 'item', value: '' },
+      count: 1
+    },
+    smithingTransform: {
+      template: { kind: 'item', value: '' },
+      base: { kind: 'item', value: '' },
+      addition: { kind: 'item', value: '' }
+    },
+    smithingTrim: {
+      template: { kind: 'item', value: '' },
+      base: { kind: 'item', value: '' },
+      addition: { kind: 'item', value: '' }
+    },
+    specialTypeId: 'minecraft:crafting_special_armordye'
+  };
+
+  const recipeTypes = [
+    {
+      id: 'minecraft:crafting_shaped',
+      label: 'Shaped',
+      description: 'Pattern-based 3×3 crafting',
+      group: 'Crafting',
+      icon: '🧱',
+      editorKey: 'crafting_shaped'
+    },
+    {
+      id: 'minecraft:crafting_shapeless',
+      label: 'Shapeless',
+      description: 'Order doesn’t matter',
+      group: 'Crafting',
+      icon: '✨',
+      editorKey: 'crafting_shapeless'
+    },
+    {
+      id: 'minecraft:crafting_decorated_pot',
+      label: 'Decorated pot',
+      description: 'Special pot serializer',
+      group: 'Crafting',
+      icon: '🏺',
+      editorKey: 'crafting_decorated_pot'
+    },
+    {
+      id: 'minecraft:smelting',
+      label: 'Smelting',
+      description: 'Furnace recipes',
+      group: 'Cooking',
+      icon: '🔥',
+      editorKey: 'cooking'
+    },
+    {
+      id: 'minecraft:blasting',
+      label: 'Blasting',
+      description: 'Blast furnace',
+      group: 'Cooking',
+      icon: '⚡',
+      editorKey: 'cooking'
+    },
+    {
+      id: 'minecraft:smoking',
+      label: 'Smoking',
+      description: 'Smoker',
+      group: 'Cooking',
+      icon: '💨',
+      editorKey: 'cooking'
+    },
+    {
+      id: 'minecraft:campfire_cooking',
+      label: 'Campfire',
+      description: 'Campfire cooking',
+      group: 'Cooking',
+      icon: '🏕️',
+      editorKey: 'cooking'
+    },
+    {
+      id: 'minecraft:stonecutting',
+      label: 'Stonecutting',
+      description: 'Stonecutter recipes',
+      group: 'Stonecutting',
+      icon: '🪨',
+      editorKey: 'stonecutting'
+    },
+    {
+      id: 'minecraft:smithing_transform',
+      label: 'Smithing transform',
+      description: 'Upgrades (e.g. netherite)',
+      group: 'Smithing',
+      icon: '⚙️',
+      editorKey: 'smithing_transform'
+    },
+    {
+      id: 'minecraft:smithing_trim',
+      label: 'Smithing trim',
+      description: 'Armor trims',
+      group: 'Smithing',
+      icon: '🎨',
+      editorKey: 'smithing_trim'
+    },
+    // Crafting specials and crafting_transmute – share the same editor
+    {
+      id: 'minecraft:crafting_special_armordye',
+      label: 'Armor dye (special)',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '🛡️',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_bannerduplicate',
+      label: 'Banner duplicate',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '🏳️',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_bookcloning',
+      label: 'Book cloning',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '📘',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_firework_rocket',
+      label: 'Firework rocket',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '🎆',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_firework_star',
+      label: 'Firework star',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '⭐',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_firework_star_fade',
+      label: 'Firework star fade',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '🌈',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_mapcloning',
+      label: 'Map cloning',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '🗺️',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_mapextending',
+      label: 'Map extending',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '➕',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_repairitem',
+      label: 'Repair item',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '🔧',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_shielddecoration',
+      label: 'Shield decoration',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '🛡️',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_shulkerboxcoloring',
+      label: 'Shulker box color',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '📦',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_tippedarrow',
+      label: 'Tipped arrows',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '🏹',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_special_suspiciousstew',
+      label: 'Suspicious stew',
+      description: 'Built-in serializer',
+      group: 'Special',
+      icon: '🥣',
+      editorKey: 'crafting_special'
+    },
+    {
+      id: 'minecraft:crafting_transmute',
+      label: 'Transmute',
+      description: 'Experimental special',
+      group: 'Special',
+      icon: '🔮',
+      editorKey: 'crafting_special'
+    }
+  ];
+
+  // --- UI setup ------------------------------------------------------------
+  function buildTypeChips() {
+    const container = document.getElementById('typeChips');
+    container.innerHTML = '';
+    recipeTypes.forEach(rt => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip';
+      chip.dataset.typeId = rt.id;
+      chip.dataset.editorKey = rt.editorKey;
+
+      const main = document.createElement('div');
+      main.className = 'chip-main';
+
+      const icon = document.createElement('div');
+      icon.className = 'chip-icon';
+      icon.textContent = rt.icon;
+
+      const label = document.createElement('div');
+      label.className = 'chip-label';
+      const strong = document.createElement('strong');
+      strong.textContent = rt.label;
+      const span = document.createElement('span');
+      span.textContent = rt.description;
+      label.appendChild(strong);
+      label.appendChild(span);
+
+      main.appendChild(icon);
+      main.appendChild(label);
+
+      const meta = document.createElement('div');
+      meta.className = 'chip-meta';
+      meta.textContent = rt.group.toUpperCase();
+
+      chip.appendChild(main);
+      chip.appendChild(meta);
+
+      chip.addEventListener('click', () => {
+        selectRecipeType(rt.id, rt.editorKey, true);
+      });
+
+      container.appendChild(chip);
+    });
+  }
+
+  function selectRecipeType(typeId, editorKey, fromUser) {
+    state.typeId = typeId;
+    state.editorKey = editorKey;
+
+    // Highlight chip
+    const chips = document.querySelectorAll('.chip');
+    chips.forEach(chip => {
+      const chipType = chip.dataset.typeId;
+      chip.classList.toggle('selected', chipType === typeId);
+    });
+
+    // Show correct editor
+    const editors = document.querySelectorAll('.type-editor');
+    editors.forEach(ed => {
+      const key = ed.dataset.editor;
+      ed.classList.toggle('active', key === editorKey);
+    });
+
+    // For crafting_special, sync dropdown to typeId if it’s one of the specials
+    if (editorKey === 'crafting_special') {
+      const select = document.getElementById('specialTypeSelect');
+      if (typeId.startsWith('minecraft:crafting_special_') || typeId === 'minecraft:crafting_transmute') {
+        select.value = typeId;
+        state.specialTypeId = typeId;
+      } else {
+        // If user selected via dropdown, keep
+        if (state.specialTypeId) {
+          select.value = state.specialTypeId;
+        }
+      }
+    }
+
+    if (fromUser) {
+      updateJsonPreview();
+    }
+  }
+
+  // Build 3×3 grids for shaped & shapeless
+  function buildGrid(gridId, stateKey) {
+    const gridEl = document.getElementById(gridId);
+    gridEl.innerHTML = '';
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        const slot = document.createElement('button');
+        slot.type = 'button';
+        slot.className = 'craft-slot';
+        slot.dataset.row = row;
+        slot.dataset.col = col;
+        const textSpan = document.createElement('span');
+        textSpan.textContent = '';
+        slot.appendChild(textSpan);
+        slot.addEventListener('click', () => {
+          selectGridSlot(stateKey, row, col);
+        });
+        gridEl.appendChild(slot);
+      }
+    }
+  }
+
+  function selectGridSlot(stateKey, row, col) {
+    const gridSelector = stateKey === 'shaped' ? '#shapedGrid .craft-slot' : '#shapelessGrid .craft-slot';
+    const slots = document.querySelectorAll(gridSelector);
+    slots.forEach(s => {
+      const r = Number(s.dataset.row);
+      const c = Number(s.dataset.col);
+      s.classList.toggle('selected', r === row && c === col);
+    });
+
+    const stateObj = state[stateKey];
+    stateObj.selected = { row, col };
+
+    const ing = stateObj.grid[row][col];
+
+    if (stateKey === 'shaped') {
+      const label = document.getElementById('shapedSlotLabel');
+      label.textContent = `Row ${row + 1}, Col ${col + 1}`;
+      const radios = document.querySelectorAll('input[name="shapedSlotKind"]');
+      const valueInput = document.getElementById('shapedSlotValue');
+      if (ing) {
+        radios.forEach(r => {
+          r.checked = r.value === ing.kind;
+        });
+        valueInput.value = ing.value;
+      } else {
+        radios.forEach(r => {
+          r.checked = r.value === 'item';
+        });
+        valueInput.value = '';
+      }
+    } else if (stateKey === 'shapeless') {
+      const label = document.getElementById('shapelessSlotLabel');
+      label.textContent = `Slot #${row * 3 + col + 1}`;
+      const radios = document.querySelectorAll('input[name="shapelessSlotKind"]');
+      const valueInput = document.getElementById('shapelessSlotValue');
+      if (ing) {
+        radios.forEach(r => {
+          r.checked = r.value === ing.kind;
+        });
+        valueInput.value = ing.value;
+      } else {
+        radios.forEach(r => {
+          r.checked = r.value === 'item';
+        });
+        valueInput.value = '';
+      }
+    }
+  }
+
+  function refreshGridLabels(stateKey) {
+    const selector = stateKey === 'shaped' ? '#shapedGrid .craft-slot' : '#shapelessGrid .craft-slot';
+    const slots = document.querySelectorAll(selector);
+    const grid = state[stateKey].grid;
+
+    slots.forEach(slot => {
+      const row = Number(slot.dataset.row);
+      const col = Number(slot.dataset.col);
+      const ing = grid[row][col];
+      const span = slot.querySelector('span');
+      if (!ing || !ing.value.trim()) {
+        span.textContent = '';
+      } else if (ing.kind === 'tag') {
+        span.textContent = '#' + ing.value.replace(/^minecraft:/, '');
+      } else {
+        span.textContent = ing.value.replace(/^minecraft:/, '');
+      }
+    });
+  }
+
+  // --- JSON builders -------------------------------------------------------
+  function applyCommonRecipeFields(obj) {
+    if (state.group && state.group.trim()) {
+      obj.group = state.group.trim();
+    }
+    if (state.category && state.category !== 'none') {
+      obj.category = state.category;
+    }
+    if (!state.showNotification) {
+      obj.show_notification = false;
+    }
+    return obj;
+  }
+
+  function buildResultStack() {
+    if (!state.resultItem || !state.resultItem.trim()) return null;
+    const count = Number(state.resultCount) || 1;
+    return count === 1
+      ? { id: state.resultItem.trim() }
+      : { id: state.resultItem.trim(), count };
+  }
+
+  function buildShapedRecipe() {
+    const recipe = {
+      type: 'minecraft:crafting_shaped'
+    };
+    applyCommonRecipeFields(recipe);
+
+    const grid = state.shaped.grid;
+    let minRow = 3, maxRow = -1, minCol = 3, maxCol = -1;
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (grid[r][c] && grid[r][c].value.trim()) {
+          if (r < minRow) minRow = r;
+          if (r > maxRow) maxRow = r;
+          if (c < minCol) minCol = c;
+          if (c > maxCol) maxCol = c;
+        }
+      }
+    }
+
+    if (maxRow === -1) {
+      // Empty – still output a skeleton
+      recipe.pattern = [];
+      recipe.key = {};
+    } else {
+      const pattern = [];
+      const ingredientMap = {};
+      const reverseMap = {};
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*?';
+      let idx = 0;
+
+      function ingredientKey(ing) {
+        const j = ingredientToJson(ing);
+        return j ? JSON.stringify(j) : null;
+      }
+
+      for (let r = minRow; r <= maxRow; r++) {
+        let rowStr = '';
+        for (let c = minCol; c <= maxCol; c++) {
+          const ing = grid[r][c];
+          const key = ing && ing.value.trim() ? ingredientKey(ing) : null;
+          if (!key) {
+            rowStr += ' ';
+          } else {
+            if (!(key in reverseMap)) {
+              const ch = chars[idx++] || '?';
+              reverseMap[key] = ch;
+              ingredientMap[ch] = ingredientToJson(ing);
+            }
+            rowStr += reverseMap[key];
+          }
+        }
+        pattern.push(rowStr);
+      }
+      recipe.pattern = pattern;
+      recipe.key = ingredientMap;
+    }
+
+    const resultStack = buildResultStack();
+    if (resultStack) {
+      recipe.result = resultStack;
+    }
+    return recipe;
+  }
+
+  function buildShapelessRecipe() {
+    const recipe = {
+      type: 'minecraft:crafting_shapeless'
+    };
+    applyCommonRecipeFields(recipe);
+
+    const grid = state.shapeless.grid;
+    const ingredients = [];
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const ing = grid[r][c];
+        const j = ingredientToJson(ing || {});
+        if (j) {
+          ingredients.push(j);
+        }
+      }
+    }
+
+    recipe.ingredients = ingredients;
+    const resultStack = buildResultStack();
+    if (resultStack) {
+      recipe.result = resultStack;
+    }
+    return recipe;
+  }
+
+  function buildCookingRecipe(typeId) {
+    const recipe = {
+      type: typeId
+    };
+    applyCommonRecipeFields(recipe);
+
+    const ingredientJson = ingredientToJson(state.cooking.ingredient || {});
+    if (ingredientJson) {
+      recipe.ingredient = ingredientJson;
+    }
+
+    const resultStack = buildResultStack();
+    if (resultStack) {
+      // For smelting-like recipes, vanilla expects a string item ID; we’ll
+      // use the id of the stack and ignore count (furnaces output count 1).
+      recipe.result = resultStack.id;
+    }
+
+    recipe.experience = Number(state.cooking.experience) || 0;
+    recipe.cookingtime = Number(state.cooking.cookingTime) || 200;
+
+    return recipe;
+  }
+
+  function buildStonecuttingRecipe() {
+    const recipe = {
+      type: 'minecraft:stonecutting'
+    };
+    applyCommonRecipeFields(recipe);
+
+    const ingredientJson = ingredientToJson(state.stonecut.ingredient || {});
+    if (ingredientJson) {
+      recipe.ingredient = ingredientJson;
+    }
+
+    const resultStack = buildResultStack();
+    if (resultStack) {
+      // Stonecutting expects result as item ID string + count
+      recipe.result = resultStack.id;
+      recipe.count = Number(state.stonecut.count) || 1;
+    }
+
+    return recipe;
+  }
+
+  function buildSmithingTransformRecipe() {
+    const recipe = {
+      type: 'minecraft:smithing_transform'
+    };
+    applyCommonRecipeFields(recipe);
+
+    const t = ingredientToJson(state.smithingTransform.template || {});
+    const b = ingredientToJson(state.smithingTransform.base || {});
+    const a = ingredientToJson(state.smithingTransform.addition || {});
+
+    if (t) recipe.template = t;
+    if (b) recipe.base = b;
+    if (a) recipe.addition = a;
+
+    const resultStack = buildResultStack();
+    if (resultStack) {
+      recipe.result = resultStack;
+    }
+
+    return recipe;
+  }
+
+  function buildSmithingTrimRecipe() {
+    const recipe = {
+      type: 'minecraft:smithing_trim'
+    };
+    applyCommonRecipeFields(recipe);
+
+    const t = ingredientToJson(state.smithingTrim.template || {});
+    const b = ingredientToJson(state.smithingTrim.base || {});
+    const a = ingredientToJson(state.smithingTrim.addition || {});
+
+    if (t) recipe.template = t;
+    if (b) recipe.base = b;
+    if (a) recipe.addition = a;
+
+    return recipe;
+  }
+
+  function buildDecoratedPotRecipe() {
+    const recipe = {
+      type: 'minecraft:crafting_decorated_pot'
+    };
+    applyCommonRecipeFields(recipe);
+    return recipe;
+  }
+
+  function buildSpecialRecipe() {
+    const typeId = state.specialTypeId || 'minecraft:crafting_special_armordye';
+    const recipe = { type: typeId };
+    applyCommonRecipeFields(recipe);
+    return recipe;
+  }
+
+  function buildRecipeJson() {
+    const typeId = state.typeId;
+    switch (typeId) {
+      case 'minecraft:crafting_shaped':
+        return buildShapedRecipe();
+      case 'minecraft:crafting_shapeless':
+        return buildShapelessRecipe();
+      case 'minecraft:smelting':
+      case 'minecraft:blasting':
+      case 'minecraft:smoking':
+      case 'minecraft:campfire_cooking':
+        return buildCookingRecipe(typeId);
+      case 'minecraft:stonecutting':
+        return buildStonecuttingRecipe();
+      case 'minecraft:smithing_transform':
+        return buildSmithingTransformRecipe();
+      case 'minecraft:smithing_trim':
+        return buildSmithingTrimRecipe();
+      case 'minecraft:crafting_decorated_pot':
+        return buildDecoratedPotRecipe();
+      default:
+        // crafting_special_* and crafting_transmute:
+        return buildSpecialRecipe();
+    }
+  }
+
+  function updateFilePathPreview() {
+    const ns = state.namespace && state.namespace.trim() ? state.namespace.trim() : 'namespace';
+    const path = state.path && state.path.trim() ? state.path.trim() : 'recipe_name';
+    const text = `data/${ns}/recipe/${path}.json`;
+    document.getElementById('filePathPreview').textContent = text;
+  }
+
+  function updateJsonPreview() {
+    const jsonObj = buildRecipeJson();
+    const jsonStr = JSON.stringify(jsonObj, null, 2);
+    document.getElementById('jsonOutput').textContent = jsonStr;
+    updateFilePathPreview();
+  }
+
+  // --- Input bindings ------------------------------------------------------
+  function bindInputs() {
+    // Global settings
+    document.getElementById('nsInput').addEventListener('input', e => {
+      state.namespace = e.target.value;
+      updateJsonPreview();
+    });
+    document.getElementById('pathInput').addEventListener('input', e => {
+      state.path = e.target.value;
+      updateJsonPreview();
+    });
+    document.getElementById('resultItemInput').addEventListener('input', e => {
+      state.resultItem = e.target.value;
+      updateJsonPreview();
+    });
+    document.getElementById('resultCountInput').addEventListener('input', e => {
+      const n = Number(e.target.value) || 1;
+      state.resultCount = n;
+      updateJsonPreview();
+    });
+    document.getElementById('groupInput').addEventListener('input', e => {
+      state.group = e.target.value;
+      updateJsonPreview();
+    });
+    document.getElementById('categorySelect').addEventListener('change', e => {
+      state.category = e.target.value;
+      updateJsonPreview();
+    });
+    document.getElementById('showNotificationToggle').addEventListener('change', e => {
+      state.showNotification = e.target.checked;
+      updateJsonPreview();
+    });
+
+    // Shaped slot editor
+    const shapedKindRadios = document.querySelectorAll('input[name="shapedSlotKind"]');
+    shapedKindRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const sel = state.shaped.selected;
+        if (!sel) return;
+        const valueEl = document.getElementById('shapedSlotValue');
+        const kind = document.querySelector('input[name="shapedSlotKind"]:checked').value;
+        const value = valueEl.value.trim();
+        state.shaped.grid[sel.row][sel.col] = value ? cloneIngredient(kind, value) : null;
+        refreshGridLabels('shaped');
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('shapedSlotValue').addEventListener('input', e => {
+      const sel = state.shaped.selected;
+      if (!sel) return;
+      const kind = document.querySelector('input[name="shapedSlotKind"]:checked').value;
+      const value = e.target.value.trim();
+      state.shaped.grid[sel.row][sel.col] = value ? cloneIngredient(kind, value) : null;
+      refreshGridLabels('shaped');
+      updateJsonPreview();
+    });
+    document.getElementById('shapedClearSlotBtn').addEventListener('click', () => {
+      const sel = state.shaped.selected;
+      if (!sel) return;
+      state.shaped.grid[sel.row][sel.col] = null;
+      document.getElementById('shapedSlotValue').value = '';
+      refreshGridLabels('shaped');
+      updateJsonPreview();
+    });
+
+    // Shapeless slot editor
+    const shapelessKindRadios = document.querySelectorAll('input[name="shapelessSlotKind"]');
+    shapelessKindRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const sel = state.shapeless.selected;
+        if (!sel) return;
+        const valueEl = document.getElementById('shapelessSlotValue');
+        const kind = document.querySelector('input[name="shapelessSlotKind"]:checked').value;
+        const value = valueEl.value.trim();
+        state.shapeless.grid[sel.row][sel.col] = value ? cloneIngredient(kind, value) : null;
+        refreshGridLabels('shapeless');
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('shapelessSlotValue').addEventListener('input', e => {
+      const sel = state.shapeless.selected;
+      if (!sel) return;
+      const kind = document.querySelector('input[name="shapelessSlotKind"]:checked').value;
+      const value = e.target.value.trim();
+      state.shapeless.grid[sel.row][sel.col] = value ? cloneIngredient(kind, value) : null;
+      refreshGridLabels('shapeless');
+      updateJsonPreview();
+    });
+    document.getElementById('shapelessClearSlotBtn').addEventListener('click', () => {
+      const sel = state.shapeless.selected;
+      if (!sel) return;
+      state.shapeless.grid[sel.row][sel.col] = null;
+      document.getElementById('shapelessSlotValue').value = '';
+      refreshGridLabels('shapeless');
+      updateJsonPreview();
+    });
+
+    // Cooking
+    const cookKindRadios = document.querySelectorAll('input[name="cookKind"]');
+    cookKindRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const kind = document.querySelector('input[name="cookKind"]:checked').value;
+        state.cooking.ingredient.kind = kind;
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('cookValue').addEventListener('input', e => {
+      state.cooking.ingredient.value = e.target.value;
+      updateJsonPreview();
+    });
+    document.getElementById('cookExpInput').addEventListener('input', e => {
+      state.cooking.experience = Number(e.target.value) || 0;
+      updateJsonPreview();
+    });
+    document.getElementById('cookTimeInput').addEventListener('input', e => {
+      state.cooking.cookingTime = Number(e.target.value) || 200;
+      updateJsonPreview();
+    });
+
+    // Stonecutting
+    const stoneKindRadios = document.querySelectorAll('input[name="stoneKind"]');
+    stoneKindRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const kind = document.querySelector('input[name="stoneKind"]:checked').value;
+        state.stonecut.ingredient.kind = kind;
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('stoneValue').addEventListener('input', e => {
+      state.stonecut.ingredient.value = e.target.value;
+      updateJsonPreview();
+    });
+    document.getElementById('stoneCountInput').addEventListener('input', e => {
+      state.stonecut.count = Number(e.target.value) || 1;
+      updateJsonPreview();
+    });
+
+    // Smithing transform
+    const smithTemplateRadios = document.querySelectorAll('input[name="smithTemplateKind"]');
+    smithTemplateRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const kind = document.querySelector('input[name="smithTemplateKind"]:checked').value;
+        state.smithingTransform.template.kind = kind;
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('smithTemplateValue').addEventListener('input', e => {
+      state.smithingTransform.template.value = e.target.value;
+      updateJsonPreview();
+    });
+
+    const smithBaseRadios = document.querySelectorAll('input[name="smithBaseKind"]');
+    smithBaseRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const kind = document.querySelector('input[name="smithBaseKind"]:checked').value;
+        state.smithingTransform.base.kind = kind;
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('smithBaseValue').addEventListener('input', e => {
+      state.smithingTransform.base.value = e.target.value;
+      updateJsonPreview();
+    });
+
+    const smithAddRadios = document.querySelectorAll('input[name="smithAddKind"]');
+    smithAddRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const kind = document.querySelector('input[name="smithAddKind"]:checked').value;
+        state.smithingTransform.addition.kind = kind;
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('smithAddValue').addEventListener('input', e => {
+      state.smithingTransform.addition.value = e.target.value;
+      updateJsonPreview();
+    });
+
+    // Smithing trim
+    const trimTemplateRadios = document.querySelectorAll('input[name="trimTemplateKind"]');
+    trimTemplateRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const kind = document.querySelector('input[name="trimTemplateKind"]:checked').value;
+        state.smithingTrim.template.kind = kind;
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('trimTemplateValue').addEventListener('input', e => {
+      state.smithingTrim.template.value = e.target.value;
+      updateJsonPreview();
+    });
+
+    const trimBaseRadios = document.querySelectorAll('input[name="trimBaseKind"]');
+    trimBaseRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const kind = document.querySelector('input[name="trimBaseKind"]:checked').value;
+        state.smithingTrim.base.kind = kind;
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('trimBaseValue').addEventListener('input', e => {
+      state.smithingTrim.base.value = e.target.value;
+      updateJsonPreview();
+    });
+
+    const trimAddRadios = document.querySelectorAll('input[name="trimAddKind"]');
+    trimAddRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        const kind = document.querySelector('input[name="trimAddKind"]:checked').value;
+        state.smithingTrim.addition.kind = kind;
+        updateJsonPreview();
+      });
+    });
+    document.getElementById('trimAddValue').addEventListener('input', e => {
+      state.smithingTrim.addition.value = e.target.value;
+      updateJsonPreview();
+    });
+
+    // Special type selector
+    document.getElementById('specialTypeSelect').addEventListener('change', e => {
+      state.specialTypeId = e.target.value;
+      // Also set current recipe type to this
+      state.typeId = state.specialTypeId;
+      // Update chip highlight
+      const chip = Array.from(document.querySelectorAll('.chip')).find(c => c.dataset.typeId === state.specialTypeId);
+      if (chip) {
+        selectRecipeType(state.specialTypeId, 'crafting_special', false);
+      }
+      updateJsonPreview();
+    });
+
+    // Output actions
+    document.getElementById('copyJsonBtn').addEventListener('click', async () => {
+      const jsonStr = document.getElementById('jsonOutput').textContent;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(jsonStr);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = jsonStr;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        showToast('JSON copied to clipboard');
+      } catch (err) {
+        console.error(err);
+        showToast('Could not copy JSON');
+      }
+    });
+
+    document.getElementById('downloadJsonBtn').addEventListener('click', () => {
+      const jsonStr = document.getElementById('jsonOutput').textContent;
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ns = state.namespace && state.namespace.trim() ? state.namespace.trim() : 'namespace';
+      const path = state.path && state.path.trim() ? state.path.trim() : 'recipe_name';
+      a.href = url;
+      a.download = `${ns}-${path.replace(/[\\/]/g, '_')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  // --- Init ----------------------------------------------------------------
+  document.addEventListener('DOMContentLoaded', () => {
+    buildTypeChips();
+    buildGrid('shapedGrid', 'shaped');
+    buildGrid('shapelessGrid', 'shapeless');
+    bindInputs();
+
+    // Default selections
+    selectRecipeType('minecraft:crafting_shaped', 'crafting_shaped', false);
+    state.namespace = document.getElementById('nsInput').value;
+    state.path = document.getElementById('pathInput').value;
+    state.resultItem = document.getElementById('resultItemInput').value;
+    state.resultCount = Number(document.getElementById('resultCountInput').value) || 1;
+    state.group = document.getElementById('groupInput').value;
+    state.category = document.getElementById('categorySelect').value;
+    state.showNotification = document.getElementById('showNotificationToggle').checked;
+
+    updateJsonPreview();
+  });
+</script>
+</body>
+</html>
