@@ -1080,6 +1080,176 @@
                             </div>
                         </div>
 
+                        <!-- Farmer's Delight: Cooking Pot -->
+                        <div class="type-editor" data-editor="fd_cooking">
+                            <div class="type-header">
+                                <strong>Farmer's Delight – Cooking Pot</strong>
+                                <span>Up to 6 ingredients, one result + optional container</span>
+                            </div>
+
+                            <div class="editor-grid-wrapper">
+                                <div class="field" style="flex:1">
+                                    <label>Ingredients</label>
+                                    <div id="fdCookingIngredientsContainer" class="tag-values"></div>
+                                    <button class="btn" type="button" id="addFdCookingIngredientBtn">
+                                        <span class="btn-icon">➕</span> Add ingredient
+                                    </button>
+                                    <small class="tiny">
+                                        Each entry becomes a standard ingredient object
+                                        (<code>{"item": "..."}</code> or <code>{"tag": "..."}</code>) in the
+                                        <code>ingredients</code> array.
+                                    </small>
+                                </div>
+
+                                <div class="field" style="flex:1">
+                                    <label>Cooking settings</label>
+
+                                    <div class="field-row">
+                                        <div class="field" style="flex:1">
+                                            <label for="fdCookingTimeInput">Cooking time (ticks)</label>
+                                            <input id="fdCookingTimeInput" type="number" min="0" step="1" value="200" />
+                                            <small class="tiny">
+                                                Writes <code>cookingtime</code> (defaults to 200 if omitted).
+                                            </small>
+                                        </div>
+                                        <div class="field" style="flex:1">
+                                            <label for="fdCookingExpInput">Experience</label>
+                                            <input id="fdCookingExpInput" type="number" step="0.1" value="0" />
+                                            <small class="tiny">
+                                                Optional <code>experience</code> field.
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row">
+                                        <div class="field" style="flex:1">
+                                            <label for="fdCookingContainerInput">Container item (optional)</label>
+                                            <input id="fdCookingContainerInput" type="text"
+                                                placeholder="minecraft:bowl" />
+                                            <small class="tiny">
+                                                Written as <code>{"container": {"item": "..."}}</code>.
+                                            </small>
+                                        </div>
+                                        <div class="field" style="flex:1">
+                                            <label for="fdCookingTabSelect">Recipe book tab</label>
+                                            <select id="fdCookingTabSelect">
+                                                <option value="">(auto)</option>
+                                                <option value="meals">meals</option>
+                                                <option value="drinks">drinks</option>
+                                                <option value="misc">misc</option>
+                                            </select>
+                                            <small class="tiny">
+                                                Optional <code>recipe_book_tab</code> used by Farmer's Delight.
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <div class="badge-note tiny">
+                                        <span>Note</span>
+                                        <div>
+                                            The main result item &amp; count come from the global fields at the top;
+                                            they are written to the <code>result</code> object here.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Farmer's Delight: Cutting Board -->
+                        <div class="type-editor" data-editor="fd_cutting">
+                            <div class="type-header">
+                                <strong>Farmer's Delight – Cutting Board</strong>
+                                <span>Single input, tool + up to 4 results</span>
+                            </div>
+
+                            <div class="editor-grid-wrapper">
+                                <div class="field" style="flex:1">
+                                    <label>Input ingredient</label>
+                                    <div id="fdCuttingIngredientContainer" class="tag-values"></div>
+                                    <small class="tiny">
+                                        FD uses a 1-element <code>ingredients</code> array for the item on the board.
+                                    </small>
+                                </div>
+
+                                <div class="field" style="flex:1">
+                                    <label>Tool</label>
+                                    <div class="field">
+                                        <div class="ingredient-type-row">
+                                            <label>
+                                                <input type="radio" name="fdToolMode" value="tag" checked />
+                                                Tag (e.g. <code>forge:tools/knives</code>)
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="fdToolMode" value="item" />
+                                                Item ID
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="fdToolMode" value="type" />
+                                                Tool type
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="fdToolTagInput">Tool tag</label>
+                                        <input id="fdToolTagInput" type="text" placeholder="forge:tools/knives" />
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="fdToolItemInput">Tool item ID</label>
+                                        <input id="fdToolItemInput" type="text"
+                                            placeholder="farmersdelight:iron_knife (optional)" />
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="fdToolTypeInput">Tool type (for farmersdelight:tool)</label>
+                                        <input id="fdToolTypeInput" type="text" placeholder="axe, shovel, hoe..." />
+                                        <small class="tiny">
+                                            Builds <code>{"type": "farmersdelight:tool", "tool": "axe"}</code> when
+                                            <b>Tool type</b> mode is selected.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field-row" style="margin-top:8px;">
+                                <div class="field" style="flex:1">
+                                    <label>Results (up to 4)</label>
+                                    <div id="fdCuttingResultsContainer" class="tag-values"></div>
+                                    <button class="btn" type="button" id="addFdCuttingResultBtn">
+                                        <span class="btn-icon">➕</span> Add result
+                                    </button>
+                                    <small class="tiny">
+                                        Each result becomes <code>{"item": "...", "count": n?, "chance": 0–1?}</code>.
+                                    </small>
+                                </div>
+
+                                <div class="field" style="max-width:220px">
+                                    <label for="fdCuttingSoundInput">Custom sound (optional)</label>
+                                    <input id="fdCuttingSoundInput" type="text"
+                                        placeholder="minecraft:block.wood.break" />
+                                    <small class="tiny">
+                                        Written to <code>sound</code>, overriding the default cutting sound.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Farmer's Delight: Decomposition (skeleton only) -->
+                        <div class="type-editor" data-editor="fd_decomposition">
+                            <div class="type-header">
+                                <strong>Farmer's Delight – Decomposition</strong>
+                                <span>Skeleton recipe – fill in JSON manually</span>
+                            </div>
+                            <div class="hint tiny">
+                                The <code>farmersdelight:decomposition</code> recipe type is registered and used by JEI,
+                                but its JSON layout is not documented the same way as cooking/cutting.
+                                This generator will output a minimal recipe with the correct <code>type</code> and
+                                common
+                                fields so you can complete it by hand.
+                            </div>
+                        </div>
+
                         <!-- Stonecutting -->
                         <div class="type-editor" data-editor="stonecutting">
                             <div class="type-header">
@@ -1690,6 +1860,27 @@
                 transitionalItem: '',
                 loops: 1,
                 rawSequence: ''
+            },
+
+            // --- Farmer's Delight recipe state ------------------------------------
+            fdCooking: {
+                ingredients: [],          // [{ kind: 'item'|'tag', value: '...' }]
+                containerItem: '',        // container.item (e.g. minecraft:bowl)
+                cookingTime: 200,         // cookingtime
+                experience: 0,            // experience
+                recipeBookTab: ''         // '', 'meals', 'drinks', 'misc'
+            },
+
+            fdCutting: {
+                ingredient: { kind: 'item', value: '' }, // single input on the board
+                tool: {
+                    mode: 'tag',         // 'tag' | 'item' | 'type'
+                    tag: '',             // e.g. forge:tools/knives
+                    item: '',            // e.g. farmersdelight:iron_knife
+                    toolType: ''         // e.g. axe, shovel (for farmersdelight:tool)
+                },
+                results: [],             // [{ id, count, chance }]
+                sound: ''                // optional sound ID
             }
         };
 
@@ -2018,7 +2209,33 @@
                 group: 'Create',
                 icon: '🧬',
                 editorKey: 'create_sequenced'
-            }
+            },
+
+            // --- Farmer's Delight ----------------------------------------------------
+            {
+                id: 'farmersdelight:cooking',
+                label: 'FD cooking pot',
+                description: 'Farmer\'s Delight cooking pot',
+                group: 'Farmer\'s Delight',
+                icon: '🍲',
+                editorKey: 'fd_cooking'
+            },
+            {
+                id: 'farmersdelight:cutting',
+                label: 'FD cutting board',
+                description: 'Farmer\'s Delight cutting board',
+                group: 'Farmer\'s Delight',
+                icon: '🔪',
+                editorKey: 'fd_cutting'
+            },
+            {
+                id: 'farmersdelight:decomposition',
+                label: 'FD decomposition',
+                description: 'Decomposition (compost-like)',
+                group: 'Farmer\'s Delight',
+                icon: '🪱',
+                editorKey: 'fd_decomposition'
+            },
         ];
 
         // --- UI setup ------------------------------------------------------------
@@ -2026,16 +2243,42 @@
             const container = document.getElementById('typeChips');
             container.innerHTML = '';
 
+            const searchEl = document.getElementById('typeSearchInput');
+            const query = searchEl && searchEl.value
+                ? searchEl.value.toLowerCase()
+                : '';
+
             // Always show a "Vanilla" header at the top
             const vanillaDivider = document.createElement('div');
             vanillaDivider.className = 'recipe-divider';
             vanillaDivider.textContent = 'Vanilla recipes';
             container.appendChild(vanillaDivider);
 
+            let fdDividerAdded = false;
             let createDividerAdded = false;
 
             recipeTypes.forEach(rt => {
-                // When we hit the first Create recipe, drop in a divider
+                // Simple search filter on label / id / description / group
+                if (query) {
+                    const haystack = (
+                        rt.label + ' ' +
+                        rt.description + ' ' +
+                        rt.id + ' ' +
+                        rt.group
+                    ).toLowerCase();
+                    if (!haystack.includes(query)) {
+                        return;
+                    }
+                }
+
+                if (rt.group === 'Farmer\'s Delight' && !fdDividerAdded) {
+                    const fdDivider = document.createElement('div');
+                    fdDivider.className = 'recipe-divider';
+                    fdDivider.textContent = 'Farmer\'s Delight recipes';
+                    container.appendChild(fdDivider);
+                    fdDividerAdded = true;
+                }
+
                 if (rt.group === 'Create' && !createDividerAdded) {
                     const createDivider = document.createElement('div');
                     createDivider.className = 'recipe-divider';
@@ -2317,6 +2560,131 @@
         }
 
         // --- JSON builders (recipes) ---------------------------------------------
+        function buildFdCookingRecipe() {
+            const recipe = {
+                type: 'farmersdelight:cooking'
+            };
+            applyCommonRecipeFields(recipe);
+
+            // ingredients[]
+            const ingredients = (state.fdCooking.ingredients || [])
+                .map(ing => ingredientToJson(ing || {}))
+                .filter(Boolean);
+            if (ingredients.length) {
+                recipe.ingredients = ingredients;
+            }
+
+            // result object from global result stack
+            const resultStack = buildResultStack();
+            if (resultStack) {
+                const res = { item: resultStack.id };
+                if (resultStack.count && resultStack.count !== 1) {
+                    res.count = resultStack.count;
+                }
+                recipe.result = res;
+            }
+
+            // container
+            const containerId = state.fdCooking.containerItem && state.fdCooking.containerItem.trim();
+            if (containerId) {
+                recipe.container = { item: containerId };
+            }
+
+            // cookingtime / experience
+            const t = Number(state.fdCooking.cookingTime);
+            if (!Number.isNaN(t) && t > 0) {
+                recipe.cookingtime = t;
+            }
+            const exp = Number(state.fdCooking.experience);
+            if (!Number.isNaN(exp) && exp > 0) {
+                recipe.experience = exp;
+            }
+
+            // recipe_book_tab
+            const tab = state.fdCooking.recipeBookTab && state.fdCooking.recipeBookTab.trim();
+            if (tab) {
+                recipe.recipe_book_tab = tab;
+            }
+
+            return recipe;
+        }
+
+        function buildFdCuttingRecipe() {
+            const recipe = {
+                type: 'farmersdelight:cutting'
+            };
+            applyCommonRecipeFields(recipe);
+
+            // ingredients: single entry in array
+            const ingJson = ingredientToJson(state.fdCutting.ingredient || {});
+            if (ingJson) {
+                recipe.ingredients = [ingJson];
+            }
+
+            // tool
+            const toolJson = buildFdCuttingToolJson();
+            if (toolJson) {
+                recipe.tool = toolJson;
+            }
+
+            // results[]
+            const results = (state.fdCutting.results || [])
+                .map(r => {
+                    if (!r || !r.id || !r.id.trim()) return null;
+                    const obj = { item: r.id.trim() };
+                    const cnt = Number(r.count);
+                    if (!Number.isNaN(cnt) && cnt > 1) {
+                        obj.count = cnt;
+                    }
+                    if (r.chance !== undefined && r.chance !== null && r.chance !== '') {
+                        const ch = Number(r.chance);
+                        if (!Number.isNaN(ch) && ch >= 0 && ch <= 1) {
+                            obj.chance = ch;
+                        }
+                    }
+                    return obj;
+                })
+                .filter(Boolean);
+            if (results.length) {
+                recipe.result = results;
+            }
+
+            const soundId = state.fdCutting.sound && state.fdCutting.sound.trim();
+            if (soundId) {
+                recipe.sound = soundId;
+            }
+
+            return recipe;
+        }
+
+        function buildFdDecompositionRecipe() {
+            const recipe = {
+                type: 'farmersdelight:decomposition'
+            };
+            applyCommonRecipeFields(recipe);
+            // No extra fields here: JSON layout is mod-specific and not clearly documented.
+            // Users can take this skeleton and extend it manually.
+            return recipe;
+        }
+
+        function buildFdCuttingToolJson() {
+            const toolState = state.fdCutting.tool || {};
+            const mode = toolState.mode || 'tag';
+
+            if (mode === 'tag') {
+                const tagId = toolState.tag && toolState.tag.trim();
+                if (tagId) return { tag: tagId };
+            } else if (mode === 'item') {
+                const itemId = toolState.item && toolState.item.trim();
+                if (itemId) return { item: itemId };
+            } else if (mode === 'type') {
+                const tt = toolState.toolType && toolState.toolType.trim();
+                if (tt) return { type: 'farmersdelight:tool', tool: tt };
+            }
+
+            return null;
+        }
+
         function buildCreateProcessingRecipe(typeId) {
             const recipe = { type: typeId };
 
@@ -2715,6 +3083,14 @@
                 case 'create:sequenced_assembly':
                     return buildCreateSequencedRecipe();
 
+                // Farmer's Delight ------------------------------------------------
+                case 'farmersdelight:cooking':
+                    return buildFdCookingRecipe();
+                case 'farmersdelight:cutting':
+                    return buildFdCuttingRecipe();
+                case 'farmersdelight:decomposition':
+                    return buildFdDecompositionRecipe();
+
                 // Everything else is a vanilla "special" recipe type
                 default:
                     return buildSpecialRecipe();
@@ -2965,6 +3341,184 @@
             });
         }
 
+        function renderFdCookingIngredients() {
+            const container = document.getElementById('fdCookingIngredientsContainer');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            if (!state.fdCooking.ingredients || state.fdCooking.ingredients.length === 0) {
+                state.fdCooking.ingredients = [{ kind: 'item', value: '' }];
+            }
+
+            state.fdCooking.ingredients.forEach((entry, index) => {
+                const row = document.createElement('div');
+                row.className = 'tag-value-row';
+
+                const kindWrap = document.createElement('div');
+                kindWrap.className = 'tag-value-kind';
+                const kindSelect = document.createElement('select');
+                ['item', 'tag'].forEach(kind => {
+                    const opt = document.createElement('option');
+                    opt.value = kind;
+                    opt.textContent = kind === 'tag' ? 'Tag' : 'Item ID';
+                    kindSelect.appendChild(opt);
+                });
+                kindSelect.value = entry.kind || 'item';
+                kindSelect.addEventListener('change', e => {
+                    entry.kind = e.target.value;
+                    updateJsonPreview();
+                });
+                kindWrap.appendChild(kindSelect);
+
+                const valueWrap = document.createElement('div');
+                valueWrap.className = 'tag-value-input';
+                const valueInput = document.createElement('input');
+                valueInput.type = 'text';
+                valueInput.placeholder = 'minecraft:wheat or farmersdelight:onion';
+                valueInput.value = entry.value || '';
+                valueInput.addEventListener('input', e => {
+                    entry.value = e.target.value;
+                    updateJsonPreview();
+                });
+                valueWrap.appendChild(valueInput);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn tag-remove-btn';
+                removeBtn.textContent = '✕';
+                removeBtn.title = 'Remove ingredient';
+                removeBtn.addEventListener('click', () => {
+                    state.fdCooking.ingredients.splice(index, 1);
+                    renderFdCookingIngredients();
+                    updateJsonPreview();
+                });
+
+                row.appendChild(kindWrap);
+                row.appendChild(valueWrap);
+                row.appendChild(removeBtn);
+                container.appendChild(row);
+            });
+        }
+
+        function renderFdCutting() {
+            const ingContainer = document.getElementById('fdCuttingIngredientContainer');
+            const resContainer = document.getElementById('fdCuttingResultsContainer');
+            if (!ingContainer || !resContainer) return;
+
+            // Ingredient (single)
+            ingContainer.innerHTML = '';
+            if (!state.fdCutting.ingredient) {
+                state.fdCutting.ingredient = { kind: 'item', value: '' };
+            }
+            const entry = state.fdCutting.ingredient;
+
+            const row = document.createElement('div');
+            row.className = 'tag-value-row';
+
+            const kindWrap = document.createElement('div');
+            kindWrap.className = 'tag-value-kind';
+            const kindSelect = document.createElement('select');
+            ['item', 'tag'].forEach(kind => {
+                const opt = document.createElement('option');
+                opt.value = kind;
+                opt.textContent = kind === 'tag' ? 'Tag' : 'Item ID';
+                kindSelect.appendChild(opt);
+            });
+            kindSelect.value = entry.kind || 'item';
+            kindSelect.addEventListener('change', e => {
+                entry.kind = e.target.value;
+                updateJsonPreview();
+            });
+            kindWrap.appendChild(kindSelect);
+
+            const valueWrap = document.createElement('div');
+            valueWrap.className = 'tag-value-input';
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.placeholder = 'Item to cut';
+            valueInput.value = entry.value || '';
+            valueInput.addEventListener('input', e => {
+                entry.value = e.target.value;
+                updateJsonPreview();
+            });
+            valueWrap.appendChild(valueInput);
+
+            row.appendChild(kindWrap);
+            row.appendChild(valueWrap);
+            ingContainer.appendChild(row);
+
+            // Results
+            resContainer.innerHTML = '';
+            if (!state.fdCutting.results || state.fdCutting.results.length === 0) {
+                state.fdCutting.results = [{ id: '', count: 1, chance: '' }];
+            }
+
+            state.fdCutting.results.forEach((res, index) => {
+                const rRow = document.createElement('div');
+                rRow.className = 'tag-value-row';
+
+                const idWrap = document.createElement('div');
+                idWrap.className = 'tag-value-input';
+                const idInput = document.createElement('input');
+                idInput.type = 'text';
+                idInput.placeholder = 'Result item ID';
+                idInput.value = res.id || '';
+                idInput.addEventListener('input', e => {
+                    res.id = e.target.value;
+                    updateJsonPreview();
+                });
+                idWrap.appendChild(idInput);
+
+                const countWrap = document.createElement('div');
+                countWrap.style.maxWidth = '70px';
+                const countInput = document.createElement('input');
+                countInput.type = 'number';
+                countInput.min = '0';
+                countInput.placeholder = 'cnt';
+                countInput.value = res.count != null ? res.count : '';
+                countInput.addEventListener('input', e => {
+                    const v = e.target.value;
+                    res.count = v === '' ? null : Number(v) || 0;
+                    updateJsonPreview();
+                });
+                countWrap.appendChild(countInput);
+
+                const chanceWrap = document.createElement('div');
+                chanceWrap.style.maxWidth = '80px';
+                const chanceInput = document.createElement('input');
+                chanceInput.type = 'number';
+                chanceInput.step = '0.05';
+                chanceInput.min = '0';
+                chanceInput.max = '1';
+                chanceInput.placeholder = 'chance';
+                chanceInput.value = res.chance != null ? res.chance : '';
+                chanceInput.addEventListener('input', e => {
+                    const v = e.target.value;
+                    res.chance = v === '' ? '' : Number(v) || 0;
+                    updateJsonPreview();
+                });
+                chanceWrap.appendChild(chanceInput);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn tag-remove-btn';
+                removeBtn.textContent = '✕';
+                removeBtn.title = 'Remove result';
+                removeBtn.addEventListener('click', () => {
+                    state.fdCutting.results.splice(index, 1);
+                    renderFdCutting();
+                    updateJsonPreview();
+                });
+
+                rRow.appendChild(idWrap);
+                rRow.appendChild(countWrap);
+                rRow.appendChild(chanceWrap);
+                rRow.appendChild(removeBtn);
+                resContainer.appendChild(rRow);
+            });
+        }
+
         function updateTagFilePathPreview() {
             const ns = state.tags.namespace && state.tags.namespace.trim()
                 ? state.tags.namespace.trim()
@@ -3068,8 +3622,8 @@
         function bindInputs() {
             const typeSearchInput = document.getElementById('typeSearchInput');
             if (typeSearchInput) {
-                typeSearchInput.addEventListener('input', e => {
-                    buildTypeChips(e.target.value);
+                typeSearchInput.addEventListener('input', () => {
+                    buildTypeChips();
                 });
             }
             // Global settings (recipes)
@@ -3551,6 +4105,100 @@
                     updateJsonPreview();
                 });
             }
+
+            // --- Farmer's Delight: cooking pot inputs -----------------------------
+            const addFdCookingIngredientBtn = document.getElementById('addFdCookingIngredientBtn');
+            if (addFdCookingIngredientBtn) {
+                addFdCookingIngredientBtn.addEventListener('click', () => {
+                    state.fdCooking.ingredients.push({ kind: 'item', value: '' });
+                    renderFdCookingIngredients();
+                    updateJsonPreview();
+                });
+            }
+
+            const fdCookingTimeInput = document.getElementById('fdCookingTimeInput');
+            if (fdCookingTimeInput) {
+                fdCookingTimeInput.addEventListener('input', e => {
+                    const v = Number(e.target.value);
+                    state.fdCooking.cookingTime = Number.isNaN(v) ? 0 : v;
+                    updateJsonPreview();
+                });
+            }
+
+            const fdCookingExpInput = document.getElementById('fdCookingExpInput');
+            if (fdCookingExpInput) {
+                fdCookingExpInput.addEventListener('input', e => {
+                    const v = Number(e.target.value);
+                    state.fdCooking.experience = Number.isNaN(v) ? 0 : v;
+                    updateJsonPreview();
+                });
+            }
+
+            const fdCookingContainerInput = document.getElementById('fdCookingContainerInput');
+            if (fdCookingContainerInput) {
+                fdCookingContainerInput.addEventListener('input', e => {
+                    state.fdCooking.containerItem = e.target.value;
+                    updateJsonPreview();
+                });
+            }
+
+            const fdCookingTabSelect = document.getElementById('fdCookingTabSelect');
+            if (fdCookingTabSelect) {
+                fdCookingTabSelect.addEventListener('change', e => {
+                    state.fdCooking.recipeBookTab = e.target.value;
+                    updateJsonPreview();
+                });
+            }
+
+            // --- Farmer's Delight: cutting board inputs ---------------------------
+            const fdToolRadios = document.querySelectorAll('input[name="fdToolMode"]');
+            fdToolRadios.forEach(r => {
+                r.addEventListener('change', e => {
+                    state.fdCutting.tool.mode = e.target.value;
+                    updateJsonPreview();
+                });
+            });
+
+            const fdToolTagInput = document.getElementById('fdToolTagInput');
+            if (fdToolTagInput) {
+                fdToolTagInput.addEventListener('input', e => {
+                    state.fdCutting.tool.tag = e.target.value;
+                    updateJsonPreview();
+                });
+            }
+
+            const fdToolItemInput = document.getElementById('fdToolItemInput');
+            if (fdToolItemInput) {
+                fdToolItemInput.addEventListener('input', e => {
+                    state.fdCutting.tool.item = e.target.value;
+                    updateJsonPreview();
+                });
+            }
+
+            const fdToolTypeInput = document.getElementById('fdToolTypeInput');
+            if (fdToolTypeInput) {
+                fdToolTypeInput.addEventListener('input', e => {
+                    state.fdCutting.tool.toolType = e.target.value;
+                    updateJsonPreview();
+                });
+            }
+
+            const fdCuttingSoundInput = document.getElementById('fdCuttingSoundInput');
+            if (fdCuttingSoundInput) {
+                fdCuttingSoundInput.addEventListener('input', e => {
+                    state.fdCutting.sound = e.target.value;
+                    updateJsonPreview();
+                });
+            }
+
+            const addFdCuttingResultBtn = document.getElementById('addFdCuttingResultBtn');
+            if (addFdCuttingResultBtn) {
+                addFdCuttingResultBtn.addEventListener('click', () => {
+                    state.fdCutting.results.push({ id: '', count: 1, chance: '' });
+                    renderFdCutting();
+                    updateJsonPreview();
+                });
+            }
         }
 
         // --- Init ----------------------------------------------------------------
@@ -3584,6 +4232,10 @@
             renderCreateProcessing();
 
             buildMechanicalGrid();
+
+            renderFdCookingIngredients();
+
+            renderFdCutting();
 
             updateJsonPreview();
             updateTagJsonPreview();
