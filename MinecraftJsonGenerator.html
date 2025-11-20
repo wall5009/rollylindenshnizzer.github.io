@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MineRecipe Studio – Minecraft 1.21+ Recipe Generator</title>
+  <title>MineRecipe Studio – Minecraft 1.21+ Recipe & Tag Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -121,14 +121,70 @@
       font-weight: 600;
     }
 
+    .tab-bar {
+      margin-top: 4px;
+      margin-bottom: 12px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-subtle);
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .tab-button {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      font-size: 0.8rem;
+      transition: background 0.15s ease, color 0.15s ease,
+                  box-shadow 0.15s ease, transform 0.06s ease;
+    }
+
+    .tab-button.active {
+      background: radial-gradient(circle at top, rgba(74, 222, 128, 0.18), transparent 60%);
+      color: var(--text);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+      transform: translateY(-0.5px);
+    }
+
+    .tab-label-main {
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+
+    .tab-label-sub {
+      font-size: 0.72rem;
+    }
+
+    .tab-panel {
+      margin-top: 6px;
+    }
+
     .layout {
       display: grid;
       grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.1fr) minmax(0, 0.9fr);
       gap: 16px;
     }
 
+    .layout-tags {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
     @media (max-width: 1100px) {
       .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .layout-tags {
         grid-template-columns: minmax(0, 1fr);
       }
     }
@@ -535,6 +591,34 @@
       letter-spacing: 0.08em;
     }
 
+    /* Tag values UI */
+
+    .tag-values {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .tag-value-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag-value-kind {
+      min-width: 125px;
+    }
+
+    .tag-value-input {
+      flex: 1;
+    }
+
+    .tag-remove-btn {
+      padding: 4px 7px;
+      font-size: 0.72rem;
+    }
+
     /* Output panel */
 
     .output-path {
@@ -701,7 +785,7 @@
       <div>
         <h1>
           MineRecipe Studio
-          <span>Minecraft 1.21+ JSON recipe generator</span>
+          <span>Minecraft 1.21+ JSON recipe &amp; tag generator</span>
         </h1>
         <div class="badge-row">
           <div class="badge">
@@ -710,7 +794,7 @@
           </div>
           <div class="badge">
             <span>Visual editor</span>
-            <span>3×3 grid, furnace & smithing layouts</span>
+            <span>3×3 grid, furnace &amp; smithing layouts</span>
           </div>
         </div>
       </div>
@@ -718,391 +802,487 @@
     <div class="badge-row">
       <div class="pill">
         <div class="pill-dot"></div>
-        <span>Java Edition 1.21+ (recipe/ folder &amp; result.id)</span>
+        <span>Java Edition 1.21+ (recipe/ &amp; tags/ folders)</span>
       </div>
     </div>
   </header>
 
-  <main class="layout">
-    <!-- Left: Global settings + type chooser -->
-    <section class="panel panel-settings">
-      <div class="panel-header">
-        <h2>Basics &amp; Result</h2>
-        <span>Namespace, file path, output stack</span>
-      </div>
-      <div class="panel-body">
-        <div class="field-row">
-          <div class="field" style="flex:1.1">
-            <label for="nsInput">Pack namespace</label>
-            <input id="nsInput" type="text" placeholder="mydatapack" value="mydatapack" />
-            <small>Used in <code>data/&lt;namespace&gt;/recipe/&lt;path&gt;.json</code></small>
-          </div>
-          <div class="field" style="flex:1.2">
-            <label for="pathInput">Recipe path (file name)</label>
-            <input id="pathInput" type="text" placeholder="my_cool_recipe" value="my_cool_recipe" />
-            <small>No <code>.json</code> – folders allowed, e.g. <code>weapons/netherite_upgrade</code></small>
-          </div>
-        </div>
+  <main>
+    <div class="tab-bar">
+      <button class="tab-button active" data-tab="recipes">
+        <span class="tab-label-main">Recipes</span>
+        <span class="tab-label-sub">Recipe JSON generator</span>
+      </button>
+      <button class="tab-button" data-tab="tags">
+        <span class="tab-label-main">Tags</span>
+        <span class="tab-label-sub">Tag JSON generator</span>
+      </button>
+    </div>
 
-        <div class="field-row">
-          <div class="field" style="flex:1.4">
-            <label for="resultItemInput">Result item ID</label>
-            <input id="resultItemInput" type="text" placeholder="minecraft:diamond_sword" />
-            <small>Required for most recipe types (ignored by smithing_trim, crafting_decorated_pot &amp; crafting_special_*)</small>
-          </div>
-          <div class="field" style="max-width:130px">
-            <label for="resultCountInput">Count</label>
-            <input id="resultCountInput" type="number" min="1" step="1" value="1" />
-            <small>Stack size (where supported)</small>
-          </div>
+    <!-- Recipes tab -->
+    <div class="tab-panel layout" data-tab-panel="recipes">
+      <!-- Left: Global settings + type chooser -->
+      <section class="panel panel-settings">
+        <div class="panel-header">
+          <h2>Basics &amp; Result</h2>
+          <span>Namespace, file path, output stack</span>
         </div>
+        <div class="panel-body">
+          <div class="field-row">
+            <div class="field" style="flex:1.1">
+              <label for="nsInput">Pack namespace</label>
+              <input id="nsInput" type="text" placeholder="mydatapack" value="mydatapack" />
+              <small>Used in <code>data/&lt;namespace&gt;/recipe/&lt;path&gt;.json</code></small>
+            </div>
+            <div class="field" style="flex:1.2">
+              <label for="pathInput">Recipe path (file name)</label>
+              <input id="pathInput" type="text" placeholder="my_cool_recipe" value="my_cool_recipe" />
+              <small>No <code>.json</code> – folders allowed, e.g. <code>weapons/netherite_upgrade</code></small>
+            </div>
+          </div>
 
-        <div class="field-row">
-          <div class="field" style="flex:1">
-            <label for="groupInput">Recipe group (optional)</label>
-            <input id="groupInput" type="text" placeholder="my_group" />
-            <small>Groups recipes in the recipe book</small>
+          <div class="field-row">
+            <div class="field" style="flex:1.4">
+              <label for="resultItemInput">Result item ID</label>
+              <input id="resultItemInput" type="text" placeholder="minecraft:diamond_sword" />
+              <small>Required for most recipe types (ignored by smithing_trim, crafting_decorated_pot &amp; crafting_special_*)</small>
+            </div>
+            <div class="field" style="max-width:130px">
+              <label for="resultCountInput">Count</label>
+              <input id="resultCountInput" type="number" min="1" step="1" value="1" />
+              <small>Stack size (where supported)</small>
+            </div>
           </div>
-          <div class="field" style="flex:1">
-            <label for="categorySelect">Category</label>
-            <select id="categorySelect">
-              <option value="misc">misc</option>
-              <option value="building">building</option>
-              <option value="redstone">redstone</option>
-              <option value="equipment">equipment</option>
-              <option value="food">food</option>
-              <option value="combat">combat</option>
-              <option value="brewing">brewing</option>
-              <option value="none">(omit field)</option>
-            </select>
-            <small>Recipe book tab (1.20+)</small>
-          </div>
-        </div>
 
-        <div class="toggle-row">
-          <input id="showNotificationToggle" type="checkbox" checked />
-          <label for="showNotificationToggle">Show recipe unlock toast (set <code>show_notification</code> to false when off)</label>
-        </div>
+          <div class="field-row">
+            <div class="field" style="flex:1">
+              <label for="groupInput">Recipe group (optional)</label>
+              <input id="groupInput" type="text" placeholder="my_group" />
+              <small>Groups recipes in the recipe book</small>
+            </div>
+            <div class="field" style="flex:1">
+              <label for="categorySelect">Category</label>
+              <select id="categorySelect">
+                <option value="misc">misc</option>
+                <option value="building">building</option>
+                <option value="redstone">redstone</option>
+                <option value="equipment">equipment</option>
+                <option value="food">food</option>
+                <option value="combat">combat</option>
+                <option value="brewing">brewing</option>
+                <option value="none">(omit field)</option>
+              </select>
+              <small>Recipe book tab (1.20+)</small>
+            </div>
+          </div>
 
-        <div class="field">
-          <label>Recipe type</label>
-          <div class="chip-row" id="typeChips"></div>
-        </div>
-      </div>
-    </section>
+          <div class="toggle-row">
+            <input id="showNotificationToggle" type="checkbox" checked />
+            <label for="showNotificationToggle">Show recipe unlock toast (set <code>show_notification</code> to false when off)</label>
+          </div>
 
-    <!-- Middle: Editor per type -->
-    <section class="panel panel-editor">
-      <div class="panel-header">
-        <h2>Recipe Editor</h2>
-        <span>Visual layout based on the selected recipe type</span>
-      </div>
-      <div class="panel-body" id="editors">
-        <!-- Crafting shaped -->
-        <div class="type-editor" data-editor="crafting_shaped">
-          <div class="type-header">
-            <strong>Shaped crafting – 3×3 pattern</strong>
-            <span>Click a slot, then define an ingredient on the right</span>
-          </div>
-          <div class="editor-grid-wrapper">
-            <div class="grid-card">
-              <div class="grid-title">Crafting grid (3×3)</div>
-              <div class="craft-grid" id="shapedGrid"></div>
-              <div class="slot-caption tiny">Empty rows/columns are trimmed automatically in the JSON pattern.</div>
-            </div>
-            <div class="slot-editor" id="shapedSlotEditor">
-              <div class="slot-editor-title">
-                <span>Selected slot</span>
-                <span id="shapedSlotLabel" class="tiny">None selected</span>
-              </div>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="shapedSlotKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="shapedSlotKind" value="tag" /> Tag</label>
-              </div>
-              <div class="field">
-                <label for="shapedSlotValue">Item or tag</label>
-                <input id="shapedSlotValue" type="text" placeholder="minecraft:iron_ingot or minecraft:logs" />
-              </div>
-              <button class="btn" type="button" id="shapedClearSlotBtn">
-                <span class="btn-icon">🧹</span> Clear slot
-              </button>
-              <div class="ingredient-pill tiny">
-                Tip: use <code>minecraft:logs</code> with <b>Tag</b> for all log variants.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Crafting shapeless -->
-        <div class="type-editor" data-editor="crafting_shapeless">
-          <div class="type-header">
-            <strong>Shapeless crafting – up to 9 ingredients</strong>
-            <span>Order doesn’t matter</span>
-          </div>
-          <div class="editor-grid-wrapper">
-            <div class="grid-card">
-              <div class="grid-title">Ingredient slots (max 9)</div>
-              <div class="craft-grid" id="shapelessGrid"></div>
-              <div class="slot-caption tiny">Use as many slots as needed; the JSON arranges them automatically.</div>
-            </div>
-            <div class="slot-editor" id="shapelessSlotEditor">
-              <div class="slot-editor-title">
-                <span>Selected ingredient</span>
-                <span id="shapelessSlotLabel" class="tiny">None selected</span>
-              </div>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="shapelessSlotKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="shapelessSlotKind" value="tag" /> Tag</label>
-              </div>
-              <div class="field">
-                <label for="shapelessSlotValue">Item or tag</label>
-                <input id="shapelessSlotValue" type="text" placeholder="minecraft:stick or minecraft:planks" />
-              </div>
-              <button class="btn" type="button" id="shapelessClearSlotBtn">
-                <span class="btn-icon">🧹</span> Clear slot
-              </button>
-              <div class="ingredient-pill tiny">
-                Repeat the same ingredient in different slots to require multiples (e.g. 2 sticks).
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cooking: furnace / smoker / blast / campfire -->
-        <div class="type-editor" data-editor="cooking">
-          <div class="type-header">
-            <strong>Cooking recipes – furnace, smoker, blast furnace, campfire</strong>
-            <span>Uses the same JSON layout for all four types</span>
-          </div>
-          <div class="furnace-layout">
-            <div class="field">
-              <label>Input ingredient</label>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="cookKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="cookKind" value="tag" /> Tag</label>
-              </div>
-              <input id="cookValue" type="text" placeholder="minecraft:raw_iron or minecraft:ores" />
-              <small class="hint">Will be placed in <code>ingredient</code> for smelting / blasting / smoking / campfire_cooking.</small>
-            </div>
-            <div class="field">
-              <label>Cooking settings</label>
-              <div class="field-row">
-                <div class="field" style="flex:1">
-                  <label for="cookExpInput">Experience</label>
-                  <input id="cookExpInput" type="number" step="0.1" value="0.1" />
-                  <small class="tiny">Exp orbs granted (e.g. 0.1)</small>
-                </div>
-                <div class="field" style="flex:1">
-                  <label for="cookTimeInput">Cook time (ticks)</label>
-                  <input id="cookTimeInput" type="number" step="1" value="200" />
-                  <small class="tiny">Default furnace: 200, smoker/blast: 100, campfire: 600</small>
-                </div>
-              </div>
-              <div class="badge-note tiny">
-                <span>Note</span>
-                <div>Result item &amp; count are taken from the global fields above.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stonecutting -->
-        <div class="type-editor" data-editor="stonecutting">
-          <div class="type-header">
-            <strong>Stonecutting</strong>
-            <span>One input to one (or more) outputs</span>
-          </div>
-          <div class="editor-grid-wrapper">
-            <div class="slot-editor">
-              <div class="slot-editor-title">
-                <span>Input block / tag</span>
-              </div>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="stoneKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="stoneKind" value="tag" /> Tag</label>
-              </div>
-              <div class="field">
-                <label for="stoneValue">Item or tag</label>
-                <input id="stoneValue" type="text" placeholder="minecraft:stone or minecraft:stone_bricks" />
-              </div>
-            </div>
-            <div class="slot-editor">
-              <div class="slot-editor-title">
-                <span>Output</span>
-              </div>
-              <div class="field">
-                <label for="stoneCountInput">Output count</label>
-                <input id="stoneCountInput" type="number" min="1" step="1" value="1" />
-                <small class="tiny">Result item ID comes from global fields.</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Smithing transform -->
-        <div class="type-editor" data-editor="smithing_transform">
-          <div class="type-header">
-            <strong>Smithing – transform (upgrades)</strong>
-            <span>Template + base + addition → new item</span>
-          </div>
-          <div class="editor-grid-wrapper">
-            <div class="slot-editor" style="flex:1">
-              <div class="slot-editor-title">
-                <span>Template</span>
-                <span class="tiny">e.g. <code>minecraft:netherite_upgrade_smithing_template</code></span>
-              </div>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="smithTemplateKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="smithTemplateKind" value="tag" /> Tag</label>
-              </div>
-              <input id="smithTemplateValue" type="text" placeholder="minecraft:netherite_upgrade_smithing_template" />
-            </div>
-            <div class="slot-editor" style="flex:1">
-              <div class="slot-editor-title">
-                <span>Base</span>
-                <span class="tiny">The item to upgrade</span>
-              </div>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="smithBaseKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="smithBaseKind" value="tag" /> Tag</label>
-              </div>
-              <input id="smithBaseValue" type="text" placeholder="minecraft:diamond_sword" />
-            </div>
-            <div class="slot-editor" style="flex:1">
-              <div class="slot-editor-title">
-                <span>Addition</span>
-                <span class="tiny">The material</span>
-              </div>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="smithAddKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="smithAddKind" value="tag" /> Tag</label>
-              </div>
-              <input id="smithAddValue" type="text" placeholder="minecraft:netherite_ingot" />
-            </div>
-          </div>
-          <div class="hint tiny">
-            Result item &amp; count are taken from the global fields (e.g. <code>minecraft:netherite_sword</code> x1).
-          </div>
-        </div>
-
-        <!-- Smithing trim -->
-        <div class="type-editor" data-editor="smithing_trim">
-          <div class="type-header">
-            <strong>Smithing – trim (armor trims)</strong>
-            <span>Template + armor + material → trimmed armor</span>
-          </div>
-          <div class="editor-grid-wrapper">
-            <div class="slot-editor" style="flex:1">
-              <div class="slot-editor-title">
-                <span>Template</span>
-              </div>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="trimTemplateKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="trimTemplateKind" value="tag" /> Tag</label>
-              </div>
-              <input id="trimTemplateValue" type="text" placeholder="minecraft:coast_armor_trim_smithing_template" />
-            </div>
-            <div class="slot-editor" style="flex:1">
-              <div class="slot-editor-title">
-                <span>Armor (base)</span>
-              </div>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="trimBaseKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="trimBaseKind" value="tag" /> Tag</label>
-              </div>
-              <input id="trimBaseValue" type="text" placeholder="minecraft:diamond_chestplate" />
-            </div>
-            <div class="slot-editor" style="flex:1">
-              <div class="slot-editor-title">
-                <span>Material (addition)</span>
-              </div>
-              <div class="ingredient-type-row">
-                <label><input type="radio" name="trimAddKind" value="item" checked /> Item ID</label>
-                <label><input type="radio" name="trimAddKind" value="tag" /> Tag</label>
-              </div>
-              <input id="trimAddValue" type="text" placeholder="minecraft:redstone" />
-            </div>
-          </div>
-          <div class="warning-text tiny">
-            Trim recipes don’t specify a <code>result</code> stack – the game copies and decorates the base armor item.
-          </div>
-        </div>
-
-        <!-- Decorated pot -->
-        <div class="type-editor" data-editor="crafting_decorated_pot">
-          <div class="type-header">
-            <strong>Decorated pot – special crafting serializer</strong>
-            <span>Vanilla 1.21+ type with minimal JSON</span>
-          </div>
-          <div class="hint tiny">
-            The vanilla decorated pot recipe uses a dedicated <code>crafting_decorated_pot</code> serializer.
-            For 1.21+, the built-in recipe is effectively just:
-            <code>{"type": "minecraft:crafting_decorated_pot", "category": "misc"}</code>.
-            This editor will generate that minimal recipe plus your common fields.
-          </div>
-        </div>
-
-        <!-- Crafting specials -->
-        <div class="type-editor" data-editor="crafting_special">
-          <div class="type-header">
-            <strong>Special crafting recipes</strong>
-            <span>Handled by built-in logic</span>
-          </div>
           <div class="field">
-            <label for="specialTypeSelect">Selected special serializer</label>
-            <select id="specialTypeSelect">
-              <option value="minecraft:crafting_special_armordye">crafting_special_armordye – dye leather armor</option>
-              <option value="minecraft:crafting_special_bannerduplicate">crafting_special_bannerduplicate – copy banner patterns</option>
-              <option value="minecraft:crafting_special_bookcloning">crafting_special_bookcloning – copy written books</option>
-              <option value="minecraft:crafting_special_firework_rocket">crafting_special_firework_rocket – fireworks</option>
-              <option value="minecraft:crafting_special_firework_star">crafting_special_firework_star – firework stars</option>
-              <option value="minecraft:crafting_special_firework_star_fade">crafting_special_firework_star_fade – add fades to stars</option>
-              <option value="minecraft:crafting_special_mapcloning">crafting_special_mapcloning – copy maps</option>
-              <option value="minecraft:crafting_special_mapextending">crafting_special_mapextending – zoom maps</option>
-              <option value="minecraft:crafting_special_repairitem">crafting_special_repairitem – tool repair</option>
-              <option value="minecraft:crafting_special_shielddecoration">crafting_special_shielddecoration – banner → shield</option>
-              <option value="minecraft:crafting_special_shulkerboxcoloring">crafting_special_shulkerboxcoloring – recolor shulker boxes</option>
-              <option value="minecraft:crafting_special_tippedarrow">crafting_special_tippedarrow – tipped arrows</option>
-              <option value="minecraft:crafting_special_suspiciousstew">crafting_special_suspiciousstew – suspicious stew effects</option>
-              <option value="minecraft:crafting_transmute">crafting_transmute – experimental special serializer</option>
-            </select>
-            <small class="hint">
-              Special recipes ignore pattern/ingredients in JSON – the game implements the logic.
-              Your output will simply be <code>{"type": "...", ...common fields}</code>.
+            <label>Recipe type</label>
+            <div class="chip-row" id="typeChips"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Middle: Editor per type -->
+      <section class="panel panel-editor">
+        <div class="panel-header">
+          <h2>Recipe Editor</h2>
+          <span>Visual layout based on the selected recipe type</span>
+        </div>
+        <div class="panel-body" id="editors">
+          <!-- Crafting shaped -->
+          <div class="type-editor" data-editor="crafting_shaped">
+            <div class="type-header">
+              <strong>Shaped crafting – 3×3 pattern</strong>
+              <span>Click a slot, then define an ingredient on the right</span>
+            </div>
+            <div class="editor-grid-wrapper">
+              <div class="grid-card">
+                <div class="grid-title">Crafting grid (3×3)</div>
+                <div class="craft-grid" id="shapedGrid"></div>
+                <div class="slot-caption tiny">Empty rows/columns are trimmed automatically in the JSON pattern.</div>
+              </div>
+              <div class="slot-editor" id="shapedSlotEditor">
+                <div class="slot-editor-title">
+                  <span>Selected slot</span>
+                  <span id="shapedSlotLabel" class="tiny">None selected</span>
+                </div>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="shapedSlotKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="shapedSlotKind" value="tag" /> Tag</label>
+                </div>
+                <div class="field">
+                  <label for="shapedSlotValue">Item or tag</label>
+                  <input id="shapedSlotValue" type="text" placeholder="minecraft:iron_ingot or minecraft:logs" />
+                </div>
+                <button class="btn" type="button" id="shapedClearSlotBtn">
+                  <span class="btn-icon">🧹</span> Clear slot
+                </button>
+                <div class="ingredient-pill tiny">
+                  Tip: use <code>minecraft:logs</code> with <b>Tag</b> for all log variants.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Crafting shapeless -->
+          <div class="type-editor" data-editor="crafting_shapeless">
+            <div class="type-header">
+              <strong>Shapeless crafting – up to 9 ingredients</strong>
+              <span>Order doesn’t matter</span>
+            </div>
+            <div class="editor-grid-wrapper">
+              <div class="grid-card">
+                <div class="grid-title">Ingredient slots (max 9)</div>
+                <div class="craft-grid" id="shapelessGrid"></div>
+                <div class="slot-caption tiny">Use as many slots as needed; the JSON arranges them automatically.</div>
+              </div>
+              <div class="slot-editor" id="shapelessSlotEditor">
+                <div class="slot-editor-title">
+                  <span>Selected ingredient</span>
+                  <span id="shapelessSlotLabel" class="tiny">None selected</span>
+                </div>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="shapelessSlotKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="shapelessSlotKind" value="tag" /> Tag</label>
+                </div>
+                <div class="field">
+                  <label for="shapelessSlotValue">Item or tag</label>
+                  <input id="shapelessSlotValue" type="text" placeholder="minecraft:stick or minecraft:planks" />
+                </div>
+                <button class="btn" type="button" id="shapelessClearSlotBtn">
+                  <span class="btn-icon">🧹</span> Clear slot
+                </button>
+                <div class="ingredient-pill tiny">
+                  Repeat the same ingredient in different slots to require multiples (e.g. 2 sticks).
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cooking: furnace / smoker / blast / campfire -->
+          <div class="type-editor" data-editor="cooking">
+            <div class="type-header">
+              <strong>Cooking recipes – furnace, smoker, blast furnace, campfire</strong>
+              <span>Uses the same JSON layout for all four types</span>
+            </div>
+            <div class="furnace-layout">
+              <div class="field">
+                <label>Input ingredient</label>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="cookKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="cookKind" value="tag" /> Tag</label>
+                </div>
+                <input id="cookValue" type="text" placeholder="minecraft:raw_iron or minecraft:ores" />
+                <small class="hint">Will be placed in <code>ingredient</code> for smelting / blasting / smoking / campfire_cooking.</small>
+              </div>
+              <div class="field">
+                <label>Cooking settings</label>
+                <div class="field-row">
+                  <div class="field" style="flex:1">
+                    <label for="cookExpInput">Experience</label>
+                    <input id="cookExpInput" type="number" step="0.1" value="0.1" />
+                    <small class="tiny">Exp orbs granted (e.g. 0.1)</small>
+                  </div>
+                  <div class="field" style="flex:1">
+                    <label for="cookTimeInput">Cook time (ticks)</label>
+                    <input id="cookTimeInput" type="number" step="1" value="200" />
+                    <small class="tiny">Default furnace: 200, smoker/blast: 100, campfire: 600</small>
+                  </div>
+                </div>
+                <div class="badge-note tiny">
+                  <span>Note</span>
+                  <div>Result item &amp; count are taken from the global fields above.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stonecutting -->
+          <div class="type-editor" data-editor="stonecutting">
+            <div class="type-header">
+              <strong>Stonecutting</strong>
+              <span>One input to one (or more) outputs</span>
+            </div>
+            <div class="editor-grid-wrapper">
+              <div class="slot-editor">
+                <div class="slot-editor-title">
+                  <span>Input block / tag</span>
+                </div>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="stoneKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="stoneKind" value="tag" /> Tag</label>
+                </div>
+                <div class="field">
+                  <label for="stoneValue">Item or tag</label>
+                  <input id="stoneValue" type="text" placeholder="minecraft:stone or minecraft:stone_bricks" />
+                </div>
+              </div>
+              <div class="slot-editor">
+                <div class="slot-editor-title">
+                  <span>Output</span>
+                </div>
+                <div class="field">
+                  <label for="stoneCountInput">Output count</label>
+                  <input id="stoneCountInput" type="number" min="1" step="1" value="1" />
+                  <small class="tiny">Result item ID comes from global fields.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Smithing transform -->
+          <div class="type-editor" data-editor="smithing_transform">
+            <div class="type-header">
+              <strong>Smithing – transform (upgrades)</strong>
+              <span>Template + base + addition → new item</span>
+            </div>
+            <div class="editor-grid-wrapper">
+              <div class="slot-editor" style="flex:1">
+                <div class="slot-editor-title">
+                  <span>Template</span>
+                  <span class="tiny">e.g. <code>minecraft:netherite_upgrade_smithing_template</code></span>
+                </div>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="smithTemplateKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="smithTemplateKind" value="tag" /> Tag</label>
+                </div>
+                <input id="smithTemplateValue" type="text" placeholder="minecraft:netherite_upgrade_smithing_template" />
+              </div>
+              <div class="slot-editor" style="flex:1">
+                <div class="slot-editor-title">
+                  <span>Base</span>
+                  <span class="tiny">The item to upgrade</span>
+                </div>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="smithBaseKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="smithBaseKind" value="tag" /> Tag</label>
+                </div>
+                <input id="smithBaseValue" type="text" placeholder="minecraft:diamond_sword" />
+              </div>
+              <div class="slot-editor" style="flex:1">
+                <div class="slot-editor-title">
+                  <span>Addition</span>
+                  <span class="tiny">The material</span>
+                </div>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="smithAddKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="smithAddKind" value="tag" /> Tag</label>
+                </div>
+                <input id="smithAddValue" type="text" placeholder="minecraft:netherite_ingot" />
+              </div>
+            </div>
+            <div class="hint tiny">
+              Result item &amp; count are taken from the global fields (e.g. <code>minecraft:netherite_sword</code> x1).
+            </div>
+          </div>
+
+          <!-- Smithing trim -->
+          <div class="type-editor" data-editor="smithing_trim">
+            <div class="type-header">
+              <strong>Smithing – trim (armor trims)</strong>
+              <span>Template + armor + material → trimmed armor</span>
+            </div>
+            <div class="editor-grid-wrapper">
+              <div class="slot-editor" style="flex:1">
+                <div class="slot-editor-title">
+                  <span>Template</span>
+                </div>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="trimTemplateKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="trimTemplateKind" value="tag" /> Tag</label>
+                </div>
+                <input id="trimTemplateValue" type="text" placeholder="minecraft:coast_armor_trim_smithing_template" />
+              </div>
+              <div class="slot-editor" style="flex:1">
+                <div class="slot-editor-title">
+                  <span>Armor (base)</span>
+                </div>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="trimBaseKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="trimBaseKind" value="tag" /> Tag</label>
+                </div>
+                <input id="trimBaseValue" type="text" placeholder="minecraft:diamond_chestplate" />
+              </div>
+              <div class="slot-editor" style="flex:1">
+                <div class="slot-editor-title">
+                  <span>Material (addition)</span>
+                </div>
+                <div class="ingredient-type-row">
+                  <label><input type="radio" name="trimAddKind" value="item" checked /> Item ID</label>
+                  <label><input type="radio" name="trimAddKind" value="tag" /> Tag</label>
+                </div>
+                <input id="trimAddValue" type="text" placeholder="minecraft:redstone" />
+              </div>
+            </div>
+            <div class="warning-text tiny">
+              Trim recipes don’t specify a <code>result</code> stack – the game copies and decorates the base armor item.
+            </div>
+          </div>
+
+          <!-- Decorated pot -->
+          <div class="type-editor" data-editor="crafting_decorated_pot">
+            <div class="type-header">
+              <strong>Decorated pot – special crafting serializer</strong>
+              <span>Vanilla 1.21+ type with minimal JSON</span>
+            </div>
+            <div class="hint tiny">
+              The vanilla decorated pot recipe uses a dedicated <code>crafting_decorated_pot</code> serializer.
+              For 1.21+, the built-in recipe is effectively just:
+              <code>{"type": "minecraft:crafting_decorated_pot", "category": "misc"}</code>.
+              This editor will generate that minimal recipe plus your common fields.
+            </div>
+          </div>
+
+          <!-- Crafting specials -->
+          <div class="type-editor" data-editor="crafting_special">
+            <div class="type-header">
+              <strong>Special crafting recipes</strong>
+              <span>Handled by built-in logic</span>
+            </div>
+            <div class="field">
+              <label for="specialTypeSelect">Selected special serializer</label>
+              <select id="specialTypeSelect">
+                <option value="minecraft:crafting_special_armordye">crafting_special_armordye – dye leather armor</option>
+                <option value="minecraft:crafting_special_bannerduplicate">crafting_special_bannerduplicate – copy banner patterns</option>
+                <option value="minecraft:crafting_special_bookcloning">crafting_special_bookcloning – copy written books</option>
+                <option value="minecraft:crafting_special_firework_rocket">crafting_special_firework_rocket – fireworks</option>
+                <option value="minecraft:crafting_special_firework_star">crafting_special_firework_star – firework stars</option>
+                <option value="minecraft:crafting_special_firework_star_fade">crafting_special_firework_star_fade – add fades to stars</option>
+                <option value="minecraft:crafting_special_mapcloning">crafting_special_mapcloning – copy maps</option>
+                <option value="minecraft:crafting_special_mapextending">crafting_special_mapextending – zoom maps</option>
+                <option value="minecraft:crafting_special_repairitem">crafting_special_repairitem – tool repair</option>
+                <option value="minecraft:crafting_special_shielddecoration">crafting_special_shielddecoration – banner → shield</option>
+                <option value="minecraft:crafting_special_shulkerboxcoloring">crafting_special_shulkerboxcoloring – recolor shulker boxes</option>
+                <option value="minecraft:crafting_special_tippedarrow">crafting_special_tippedarrow – tipped arrows</option>
+                <option value="minecraft:crafting_special_suspiciousstew">crafting_special_suspiciousstew – suspicious stew effects</option>
+                <option value="minecraft:crafting_transmute">crafting_transmute – experimental special serializer</option>
+              </select>
+              <small class="hint">
+                Special recipes ignore pattern/ingredients in JSON – the game implements the logic.
+                Your output will simply be <code>{"type": "...", ...common fields}</code>.
+              </small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: JSON output -->
+      <section class="panel panel-output">
+        <div class="panel-header">
+          <h2>JSON Output</h2>
+          <span>Drop into your data pack under <code>data/&lt;namespace&gt;/recipe/</code></span>
+        </div>
+        <div class="panel-body">
+          <div class="output-path">
+            <div>Recipe file path (1.21+):</div>
+            <code id="filePathPreview">data/mydatapack/recipe/my_cool_recipe.json</code>
+          </div>
+          <div class="output-actions">
+            <button class="btn btn-primary" type="button" id="copyJsonBtn">
+              <span class="btn-icon">📋</span> Copy JSON
+            </button>
+            <button class="btn" type="button" id="downloadJsonBtn">
+              <span class="btn-icon">💾</span> Download <code>.json</code>
+            </button>
+          </div>
+          <div class="output-json-shell">
+            <pre class="output-json" id="jsonOutput">{}</pre>
+            <div class="output-footer-note">
+              This JSON uses the 1.21+ format (e.g. <code>result.id</code> for item stacks).  
+              Paste into your data pack or world <code>datapacks/</code> folder.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tags tab -->
+    <div class="tab-panel layout-tags" data-tab-panel="tags" style="display:none">
+      <!-- Tag basics -->
+      <section class="panel panel-tag-settings">
+        <div class="panel-header">
+          <h2>Tag Basics</h2>
+          <span>Namespace, registry folder &amp; contents</span>
+        </div>
+        <div class="panel-body">
+          <div class="field-row">
+            <div class="field" style="flex:1.1">
+              <label for="tagNsInput">Tag namespace</label>
+              <input id="tagNsInput" type="text" placeholder="mydatapack or minecraft" value="mydatapack" />
+              <small>Used in <code>data/&lt;namespace&gt;/tags/&lt;registry&gt;/&lt;path&gt;.json</code></small>
+            </div>
+            <div class="field" style="flex:1">
+              <label for="tagRegistryInput">Registry folder</label>
+              <input id="tagRegistryInput" type="text" placeholder="items" value="items" />
+              <small>Examples: <code>items</code>, <code>blocks</code>, <code>entity_types</code>, <code>fluids</code>, <code>game_events</code></small>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field" style="flex:1.3">
+              <label for="tagPathInput">Tag path (file name)</label>
+              <input id="tagPathInput" type="text" placeholder="my_tag" value="my_tag" />
+              <small>No <code>.json</code> – folders allowed, e.g. <code>ores/copper</code></small>
+            </div>
+            <div class="field" style="max-width:170px">
+              <label>&nbsp;</label>
+              <div class="toggle-row">
+                <input id="tagReplaceToggle" type="checkbox" />
+                <label for="tagReplaceToggle">replace existing</label>
+              </div>
+              <small class="tiny">Sets <code>"replace": true</code> to overwrite vanilla tags.</small>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Values in tag</label>
+            <div id="tagValuesContainer" class="tag-values"></div>
+            <button class="btn" type="button" id="addTagValueBtn">
+              <span class="btn-icon">➕</span> Add value
+            </button>
+            <small class="tiny">
+              Choose <b>Item / block ID</b> for entries like <code>minecraft:stone</code>, or <b>Tag (#)</b> to include another tag,
+              which will be written as <code>#namespace:other_tag</code>.
             </small>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Right: JSON output -->
-    <section class="panel panel-output">
-      <div class="panel-header">
-        <h2>JSON Output</h2>
-        <span>Drop into your data pack under <code>data/&lt;namespace&gt;/recipe/</code></span>
-      </div>
-      <div class="panel-body">
-        <div class="output-path">
-          <div>Recipe file path (1.21+):</div>
-          <code id="filePathPreview">data/mydatapack/recipe/my_cool_recipe.json</code>
+      <!-- Tag JSON output -->
+      <section class="panel panel-tag-output">
+        <div class="panel-header">
+          <h2>Tag JSON</h2>
+          <span>Drop into <code>data/&lt;namespace&gt;/tags/&lt;registry&gt;/</code></span>
         </div>
-        <div class="output-actions">
-          <button class="btn btn-primary" type="button" id="copyJsonBtn">
-            <span class="btn-icon">📋</span> Copy JSON
-          </button>
-          <button class="btn" type="button" id="downloadJsonBtn">
-            <span class="btn-icon">💾</span> Download <code>.json</code>
-          </button>
-        </div>
-        <div class="output-json-shell">
-          <pre class="output-json" id="jsonOutput">{}</pre>
-          <div class="output-footer-note">
-            This JSON uses the 1.21+ format (e.g. <code>result.id</code> for item stacks).  
-            Paste into your data pack or world <code>datapacks/</code> folder.
+        <div class="panel-body">
+          <div class="output-path">
+            <div>Tag file path:</div>
+            <code id="tagFilePathPreview">data/mydatapack/tags/items/my_tag.json</code>
+          </div>
+          <div class="output-actions">
+            <button class="btn btn-primary" type="button" id="tagCopyJsonBtn">
+              <span class="btn-icon">📋</span> Copy JSON
+            </button>
+            <button class="btn" type="button" id="tagDownloadJsonBtn">
+              <span class="btn-icon">💾</span> Download <code>.json</code>
+            </button>
+          </div>
+          <div class="output-json-shell">
+            <pre class="output-json" id="tagJsonOutput">{}</pre>
+            <div class="output-footer-note">
+              Standard tag format: <code>{"replace": false, "values": [...]}</code>.  
+              Works for any registry folder you specify under <code>tags/</code>.
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 </div>
 
@@ -1129,7 +1309,8 @@
   }
 
   function ingredientToJson(ing) {
-    if (!ing || !ing.value.trim()) return null;
+    if (!ing || !ing.value || !ing.value.trim) return null;
+    if (!ing.value.trim()) return null;
     const v = ing.value.trim();
     if (!v) return null;
     if (ing.kind === 'tag') {
@@ -1181,7 +1362,15 @@
       base: { kind: 'item', value: '' },
       addition: { kind: 'item', value: '' }
     },
-    specialTypeId: 'minecraft:crafting_special_armordye'
+    specialTypeId: 'minecraft:crafting_special_armordye',
+
+    tags: {
+      namespace: 'mydatapack',
+      registry: 'items',
+      path: 'my_tag',
+      replace: false,
+      values: []
+    }
   };
 
   const recipeTypes = [
@@ -1450,7 +1639,6 @@
         select.value = typeId;
         state.specialTypeId = typeId;
       } else {
-        // If user selected via dropdown, keep
         if (state.specialTypeId) {
           select.value = state.specialTypeId;
         }
@@ -1553,7 +1741,7 @@
     });
   }
 
-  // --- JSON builders -------------------------------------------------------
+  // --- JSON builders (recipes) ---------------------------------------------
   function applyCommonRecipeFields(obj) {
     if (state.group && state.group.trim()) {
       obj.group = state.group.trim();
@@ -1596,7 +1784,6 @@
     }
 
     if (maxRow === -1) {
-      // Empty – still output a skeleton
       recipe.pattern = [];
       recipe.key = {};
     } else {
@@ -1680,8 +1867,6 @@
 
     const resultStack = buildResultStack();
     if (resultStack) {
-      // For smelting-like recipes, vanilla expects a string item ID; we’ll
-      // use the id of the stack and ignore count (furnaces output count 1).
       recipe.result = resultStack.id;
     }
 
@@ -1704,7 +1889,6 @@
 
     const resultStack = buildResultStack();
     if (resultStack) {
-      // Stonecutting expects result as item ID string + count
       recipe.result = resultStack.id;
       recipe.count = Number(state.stonecut.count) || 1;
     }
@@ -1787,7 +1971,6 @@
       case 'minecraft:crafting_decorated_pot':
         return buildDecoratedPotRecipe();
       default:
-        // crafting_special_* and crafting_transmute:
         return buildSpecialRecipe();
     }
   }
@@ -1806,9 +1989,129 @@
     updateFilePathPreview();
   }
 
+  // --- Tag JSON builder ----------------------------------------------------
+  function buildTagJson() {
+    const rawValues = state.tags.values || [];
+    const values = rawValues
+      .map(v => {
+        if (!v || !v.value || !v.value.trim()) return null;
+        const kind = v.kind || 'item';
+        const id = v.value.trim();
+        if (kind === 'tag') {
+          return id.startsWith('#') ? id : `#${id}`;
+        }
+        return id;
+      })
+      .filter(Boolean);
+
+    return {
+      replace: !!state.tags.replace,
+      values
+    };
+  }
+
+  function updateTagFilePathPreview() {
+    const ns = state.tags.namespace && state.tags.namespace.trim()
+      ? state.tags.namespace.trim()
+      : 'namespace';
+    const registry = state.tags.registry && state.tags.registry.trim()
+      ? state.tags.registry.trim()
+      : 'items';
+    const path = state.tags.path && state.tags.path.trim()
+      ? state.tags.path.trim()
+      : 'tag_name';
+    document.getElementById('tagFilePathPreview').textContent =
+      `data/${ns}/tags/${registry}/${path}.json`;
+  }
+
+  function updateTagJsonPreview() {
+    const obj = buildTagJson();
+    const jsonStr = JSON.stringify(obj, null, 2);
+    document.getElementById('tagJsonOutput').textContent = jsonStr;
+    updateTagFilePathPreview();
+  }
+
+  function renderTagValues() {
+    const container = document.getElementById('tagValuesContainer');
+    container.innerHTML = '';
+
+    if (!state.tags.values || state.tags.values.length === 0) {
+      state.tags.values = [{ kind: 'item', value: '' }];
+    }
+
+    state.tags.values.forEach((entry, index) => {
+      const row = document.createElement('div');
+      row.className = 'tag-value-row';
+
+      const kindWrap = document.createElement('div');
+      kindWrap.className = 'tag-value-kind';
+      const kindSelect = document.createElement('select');
+      const optItem = document.createElement('option');
+      optItem.value = 'item';
+      optItem.textContent = 'Item / block ID';
+      const optTag = document.createElement('option');
+      optTag.value = 'tag';
+      optTag.textContent = 'Tag (#)';
+      kindSelect.appendChild(optItem);
+      kindSelect.appendChild(optTag);
+      kindSelect.value = entry.kind || 'item';
+      kindSelect.addEventListener('change', e => {
+        entry.kind = e.target.value;
+        updateTagJsonPreview();
+      });
+      kindWrap.appendChild(kindSelect);
+
+      const valueWrap = document.createElement('div');
+      valueWrap.className = 'tag-value-input';
+      const valueInput = document.createElement('input');
+      valueInput.type = 'text';
+      valueInput.placeholder = 'minecraft:stone or minecraft:logs';
+      valueInput.value = entry.value || '';
+      valueInput.addEventListener('input', e => {
+        entry.value = e.target.value;
+        updateTagJsonPreview();
+      });
+      valueWrap.appendChild(valueInput);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'btn tag-remove-btn';
+      removeBtn.textContent = '✕';
+      removeBtn.title = 'Remove value';
+      removeBtn.addEventListener('click', () => {
+        state.tags.values.splice(index, 1);
+        renderTagValues();
+        updateTagJsonPreview();
+      });
+
+      row.appendChild(kindWrap);
+      row.appendChild(valueWrap);
+      row.appendChild(removeBtn);
+
+      container.appendChild(row);
+    });
+  }
+
+  // --- Tabs ----------------------------------------------------------------
+  function setupTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        tabButtons.forEach(b => b.classList.toggle('active', b === btn));
+        panels.forEach(panel => {
+          const isMatch = panel.dataset.tabPanel === tab;
+          panel.style.display = isMatch ? '' : 'none';
+        });
+      });
+    });
+  }
+
   // --- Input bindings ------------------------------------------------------
   function bindInputs() {
-    // Global settings
+    // Global settings (recipes)
     document.getElementById('nsInput').addEventListener('input', e => {
       state.namespace = e.target.value;
       updateJsonPreview();
@@ -2026,9 +2329,7 @@
     // Special type selector
     document.getElementById('specialTypeSelect').addEventListener('change', e => {
       state.specialTypeId = e.target.value;
-      // Also set current recipe type to this
       state.typeId = state.specialTypeId;
-      // Update chip highlight
       const chip = Array.from(document.querySelectorAll('.chip')).find(c => c.dataset.typeId === state.specialTypeId);
       if (chip) {
         selectRecipeType(state.specialTypeId, 'crafting_special', false);
@@ -2036,7 +2337,7 @@
       updateJsonPreview();
     });
 
-    // Output actions
+    // Output actions (recipes)
     document.getElementById('copyJsonBtn').addEventListener('click', async () => {
       const jsonStr = document.getElementById('jsonOutput').textContent;
       try {
@@ -2064,11 +2365,83 @@
       const jsonStr = document.getElementById('jsonOutput').textContent;
       const blob = new Blob([jsonStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
       const ns = state.namespace && state.namespace.trim() ? state.namespace.trim() : 'namespace';
       const path = state.path && state.path.trim() ? state.path.trim() : 'recipe_name';
+      const a = document.createElement('a');
       a.href = url;
       a.download = `${ns}-${path.replace(/[\\/]/g, '_')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // --- Tag inputs ---
+    document.getElementById('tagNsInput').addEventListener('input', e => {
+      state.tags.namespace = e.target.value;
+      updateTagJsonPreview();
+    });
+
+    document.getElementById('tagRegistryInput').addEventListener('input', e => {
+      state.tags.registry = e.target.value;
+      updateTagJsonPreview();
+    });
+
+    document.getElementById('tagPathInput').addEventListener('input', e => {
+      state.tags.path = e.target.value;
+      updateTagJsonPreview();
+    });
+
+    document.getElementById('tagReplaceToggle').addEventListener('change', e => {
+      state.tags.replace = e.target.checked;
+      updateTagJsonPreview();
+    });
+
+    document.getElementById('addTagValueBtn').addEventListener('click', () => {
+      state.tags.values.push({ kind: 'item', value: '' });
+      renderTagValues();
+      updateTagJsonPreview();
+    });
+
+    document.getElementById('tagCopyJsonBtn').addEventListener('click', async () => {
+      const jsonStr = document.getElementById('tagJsonOutput').textContent;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(jsonStr);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = jsonStr;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        showToast('Tag JSON copied to clipboard');
+      } catch (err) {
+        console.error(err);
+        showToast('Could not copy JSON');
+      }
+    });
+
+    document.getElementById('tagDownloadJsonBtn').addEventListener('click', () => {
+      const jsonStr = document.getElementById('tagJsonOutput').textContent;
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const ns = state.tags.namespace && state.tags.namespace.trim()
+        ? state.tags.namespace.trim()
+        : 'namespace';
+      const registry = state.tags.registry && state.tags.registry.trim()
+        ? state.tags.registry.trim()
+        : 'items';
+      const path = state.tags.path && state.tags.path.trim()
+        ? state.tags.path.trim()
+        : 'tag_name';
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${ns}-tag-${registry}-${path.replace(/[\\/]/g, '_')}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -2082,8 +2455,9 @@
     buildGrid('shapedGrid', 'shaped');
     buildGrid('shapelessGrid', 'shapeless');
     bindInputs();
+    setupTabs();
 
-    // Default selections
+    // Default selections for recipes
     selectRecipeType('minecraft:crafting_shaped', 'crafting_shaped', false);
     state.namespace = document.getElementById('nsInput').value;
     state.path = document.getElementById('pathInput').value;
@@ -2093,7 +2467,18 @@
     state.category = document.getElementById('categorySelect').value;
     state.showNotification = document.getElementById('showNotificationToggle').checked;
 
+    // Default selections for tags
+    state.tags.namespace = document.getElementById('tagNsInput').value;
+    state.tags.registry = document.getElementById('tagRegistryInput').value;
+    state.tags.path = document.getElementById('tagPathInput').value;
+    state.tags.replace = document.getElementById('tagReplaceToggle').checked;
+    if (!state.tags.values || state.tags.values.length === 0) {
+      state.tags.values = [{ kind: 'item', value: '' }];
+    }
+    renderTagValues();
+
     updateJsonPreview();
+    updateTagJsonPreview();
   });
 </script>
 </body>
